@@ -1,7 +1,6 @@
 package capi.funding.api.services;
 
 import capi.funding.api.dto.UserEditDTO;
-import capi.funding.api.exceptions.NotFoundException;
 import capi.funding.api.models.User;
 import capi.funding.api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,15 +17,12 @@ public class UserService {
     private final BCryptPasswordEncoder bcrypt;
     private final UserRepository userRepository;
 
-    public ResponseEntity<User> getTokenUser() {
-        return ResponseEntity.ok(utilsService.getAuthUser());
+    public User getTokenUser() {
+        return utilsService.getAuthUser();
     }
 
-    public ResponseEntity<User> changePassword(long userId, String newPassword) {
-        utilsService.checkPermission(userId);
-
-        final User user = userRepository.findById(userId)
-                .orElseThrow(NotFoundException::new);
+    public ResponseEntity<User> changePassword(String newPassword) {
+        final User user = utilsService.getAuthUser();
 
         user.setPassword(bcrypt.encode(newPassword));
 

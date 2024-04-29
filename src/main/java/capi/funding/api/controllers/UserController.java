@@ -18,7 +18,8 @@ public class UserController {
 
     @GetMapping("/get-token-user")
     private ResponseEntity<User> getTokenUser() {
-        return userService.getTokenUser();
+        final User user = userService.getTokenUser();
+        return ResponseEntity.ok(user);
     }
 
     @PutMapping("/change-password")
