@@ -1,9 +1,7 @@
 package capi.funding.api.services;
 
-import capi.funding.api.enums.UserRole;
 import capi.funding.api.exceptions.InvalidFileException;
 import capi.funding.api.exceptions.InvalidParametersException;
-import capi.funding.api.exceptions.WithoutPermissionException;
 import capi.funding.api.models.User;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.security.core.Authentication;
@@ -50,14 +48,6 @@ public class UtilsService {
     public User getAuthUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return (User) authentication.getPrincipal();
-    }
-
-    public void checkPermission(long userId) {
-        final User user = getAuthUser();
-
-        if (!Objects.equals(user.getRole(), UserRole.ADM.toString()) && user.getId() != userId) {
-            throw new WithoutPermissionException();
-        }
     }
 
     public byte[] checkImageValidityAndCompress(MultipartFile file) {

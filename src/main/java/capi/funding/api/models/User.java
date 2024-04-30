@@ -1,8 +1,11 @@
 package capi.funding.api.models;
 
+import capi.funding.api.dto.CreateUserDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -12,6 +15,8 @@ import java.util.List;
 
 @Data
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "users")
 public class User implements UserDetails {
 
@@ -41,14 +46,19 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private boolean active;
 
-    @Column(nullable = false, length = 5, updatable = false)
-    private String role;
-
     @PastOrPresent
     @Column(nullable = false, updatable = false)
     private LocalDateTime creation_date;
 
     private byte[] profile_image;
+
+    public User(CreateUserDTO dto) {
+        this.email = dto.email();
+        this.password = dto.password();
+        this.name = dto.name();
+        this.active = false;
+        this.creation_date = LocalDateTime.now();
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

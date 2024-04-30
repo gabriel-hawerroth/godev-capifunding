@@ -1,4 +1,4 @@
-package capi.funding.api.config;
+package capi.funding.api;
 
 import capi.funding.api.dto.ResponseError;
 import capi.funding.api.exceptions.AuthException;

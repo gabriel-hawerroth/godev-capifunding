@@ -4,6 +4,6 @@ create table users(
     password varchar(60) not null,
     name varchar(255) not null,
     active bool not null default true,
-    role varchar(5) not null default 'USER',
+    creation_date timestamp not null default current_timestamp,
     profile_image bytea
 );

@@ -1,10 +1,11 @@
 package capi.funding.api.services;
 
+import capi.funding.api.dto.NewPasswordDTO;
 import capi.funding.api.dto.UserEditDTO;
 import capi.funding.api.models.User;
 import capi.funding.api.repository.UserRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,29 +22,29 @@ public class UserService {
         return utilsService.getAuthUser();
     }
 
-    public ResponseEntity<User> changePassword(String newPassword) {
+    public User changePassword(@Valid NewPasswordDTO dto) {
         final User user = utilsService.getAuthUser();
 
-        user.setPassword(bcrypt.encode(newPassword));
+        user.setPassword(bcrypt.encode(dto.newPassword()));
 
-        return ResponseEntity.ok(userRepository.save(user));
+        return userRepository.save(user);
     }
 
-    public ResponseEntity<User> editUser(UserEditDTO userDto) {
+    public User editUser(@Valid UserEditDTO userDto) {
         final User user = utilsService.getAuthUser();
 
         user.setName(userDto.name());
 
-        return ResponseEntity.ok(userRepository.save(user));
+        return userRepository.save(user);
     }
 
-    public ResponseEntity<User> changeProfileImage(MultipartFile file) {
+    public User changeProfileImage(MultipartFile file) {
         final byte[] compressedFile = utilsService.checkImageValidityAndCompress(file);
 
         final User user = utilsService.getAuthUser();
 
         user.setProfile_image(compressedFile);
 
-        return ResponseEntity.ok(userRepository.save(user));
+        return userRepository.save(user);
     }
 }
