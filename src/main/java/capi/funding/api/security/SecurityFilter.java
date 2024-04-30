@@ -51,7 +51,7 @@ public class SecurityFilter extends OncePerRequestFilter {
 
         if (user == null) {
             user = userRepository.findByEmail(email)
-                    .orElseThrow(NotFoundException::new);
+                    .orElseThrow(() -> new NotFoundException("user not found"));
             usersCache.put(email, user);
         }
 

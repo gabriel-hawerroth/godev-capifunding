@@ -6,13 +6,17 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Positive;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "project")
 public class Project {
 
@@ -66,11 +70,11 @@ public class Project {
     }
 
     public void updateValues(EditProjectDTO dto) {
-        if (dto.title() != null) {
+        if (dto.title() != null && !dto.title().isBlank()) {
             this.title = dto.title();
         }
 
-        if (dto.description() != null) {
+        if (dto.description() != null && !dto.description().isBlank()) {
             this.description = dto.description();
         }
 

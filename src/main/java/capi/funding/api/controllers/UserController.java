@@ -4,6 +4,7 @@ import capi.funding.api.dto.NewPasswordDTO;
 import capi.funding.api.dto.UserEditDTO;
 import capi.funding.api.models.User;
 import capi.funding.api.services.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,14 +25,14 @@ public class UserController {
     }
 
     @PutMapping("/change-password")
-    private ResponseEntity<User> changePassword(@RequestParam NewPasswordDTO newPassword) {
+    private ResponseEntity<User> changePassword(@RequestParam @Valid NewPasswordDTO newPassword) {
         return ResponseEntity.ok(
                 userService.changePassword(newPassword)
         );
     }
 
     @PutMapping("/{id}")
-    private ResponseEntity<User> editUser(@RequestBody UserEditDTO userEditDTO) {
+    private ResponseEntity<User> editUser(@RequestBody @Valid UserEditDTO userEditDTO) {
         return ResponseEntity.ok(
                 userService.editUser(userEditDTO)
         );

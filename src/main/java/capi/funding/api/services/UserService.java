@@ -4,7 +4,6 @@ import capi.funding.api.dto.NewPasswordDTO;
 import capi.funding.api.dto.UserEditDTO;
 import capi.funding.api.models.User;
 import capi.funding.api.repository.UserRepository;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,7 +21,7 @@ public class UserService {
         return utilsService.getAuthUser();
     }
 
-    public User changePassword(@Valid NewPasswordDTO dto) {
+    public User changePassword(NewPasswordDTO dto) {
         final User user = utilsService.getAuthUser();
 
         user.setPassword(bcrypt.encode(dto.newPassword()));
@@ -30,7 +29,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User editUser(@Valid UserEditDTO userDto) {
+    public User editUser(UserEditDTO userDto) {
         final User user = utilsService.getAuthUser();
 
         user.setName(userDto.name());
@@ -39,11 +38,11 @@ public class UserService {
     }
 
     public User changeProfileImage(MultipartFile file) {
-        final byte[] compressedFile = utilsService.checkImageValidityAndCompress(file);
-
         final User user = utilsService.getAuthUser();
 
-        user.setProfile_image(compressedFile);
+        user.setProfile_image(
+                utilsService.checkImageValidityAndCompress(file)
+        );
 
         return userRepository.save(user);
     }

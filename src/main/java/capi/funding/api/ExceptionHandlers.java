@@ -1,10 +1,7 @@
 package capi.funding.api;
 
 import capi.funding.api.dto.ResponseError;
-import capi.funding.api.exceptions.AuthException;
-import capi.funding.api.exceptions.InvalidParametersException;
-import capi.funding.api.exceptions.NotFoundException;
-import capi.funding.api.exceptions.TokenCreationException;
+import capi.funding.api.exceptions.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -34,6 +31,13 @@ public class ExceptionHandlers {
         );
     }
 
+    @ExceptionHandler(WithoutPermissionException.class)
+    public ResponseEntity<ResponseError> withoutPermissionException(WithoutPermissionException ex) {
+        return ResponseEntity.status(403).body(
+                new ResponseError("without permission to perform this action")
+        );
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ResponseError> methodArgumentNotValidException(MethodArgumentNotValidException ex) {
         return ResponseEntity.badRequest().body(
@@ -50,6 +54,13 @@ public class ExceptionHandlers {
 
     @ExceptionHandler(InvalidParametersException.class)
     public ResponseEntity<ResponseError> invalidParametersException(InvalidParametersException ex) {
+        return ResponseEntity.badRequest().body(
+                new ResponseError(ex.getMessage())
+        );
+    }
+
+    @ExceptionHandler(UnsendedEmailException.class)
+    public ResponseEntity<ResponseError> unsendedEmailException(UnsendedEmailException ex) {
         return ResponseEntity.badRequest().body(
                 new ResponseError(ex.getMessage())
         );

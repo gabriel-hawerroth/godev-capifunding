@@ -7,11 +7,11 @@ import capi.funding.api.models.User;
 import capi.funding.api.services.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,7 +21,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody AuthenticationDTO authDTO) {
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid AuthenticationDTO authDTO) {
         return ResponseEntity.ok(
                 authService.doLogin(authDTO)
         );
@@ -32,5 +32,16 @@ public class AuthController {
         return ResponseEntity.status(201).body(
                 authService.createNewUser(user)
         );
+    }
+
+    @GetMapping("/activate-account/{userId}/{token}")
+    public ResponseEntity<Void> activateAccount(@PathVariable long userId, @PathVariable String token) {
+        authService.activateAccount(userId, token);
+
+        final URI uri = URI.create("http://localhost:4200/ativacao-da-conta");
+
+        return ResponseEntity.status(HttpStatus.SEE_OTHER)
+                .location(uri)
+                .build();
     }
 }
