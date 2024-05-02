@@ -14,9 +14,9 @@ public interface ContributionRepository extends JpaRepository<Contribution, Long
             FROM
                 contribution c
             WHERE
-                c.project_id = :project_id
+                c.project_id = :projectId
             ORDER BY
                 c.date desc
             """, nativeQuery = true)
-    List<Contribution> getProjectContributions(long project_id);
+    List<Contribution> getProjectContributions(long projectId);
 }

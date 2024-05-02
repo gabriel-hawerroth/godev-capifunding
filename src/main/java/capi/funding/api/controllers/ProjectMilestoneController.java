@@ -5,7 +5,7 @@ import capi.funding.api.dto.EditProjectMilestoneDTO;
 import capi.funding.api.models.ProjectMilestone;
 import capi.funding.api.services.ProjectMilestoneService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,11 +13,15 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/project-milestone")
 public class ProjectMilestoneController {
 
     private final ProjectMilestoneService service;
+
+    @Autowired
+    public ProjectMilestoneController(ProjectMilestoneService service) {
+        this.service = service;
+    }
 
     @GetMapping("/get-by-project/{id}")
     private ResponseEntity<List<ProjectMilestone>> findByProject(@PathVariable long id) {

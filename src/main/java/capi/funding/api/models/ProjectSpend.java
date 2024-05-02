@@ -1,5 +1,7 @@
 package capi.funding.api.models;
 
+import capi.funding.api.dto.CreateProjectSpendDTO;
+import capi.funding.api.dto.EditProjectSpendDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
@@ -22,7 +24,7 @@ public class ProjectSpend {
     private Long id;
 
     @Positive
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     private long project_id;
 
     private Long project_milestone_id;
@@ -36,4 +38,30 @@ public class ProjectSpend {
 
     @Column(nullable = false)
     private LocalDate date;
+
+    public ProjectSpend(CreateProjectSpendDTO dto) {
+        this.project_id = dto.project_id();
+        this.project_milestone_id = dto.project_milestone_id();
+        this.description = dto.description();
+        this.value = dto.value();
+        this.date = dto.date();
+    }
+
+    public void updateValues(EditProjectSpendDTO dto) {
+        if (dto.project_milestone_id() != null) {
+            this.project_milestone_id = dto.project_milestone_id();
+        }
+
+        if (dto.description() != null && !dto.description().isBlank()) {
+            this.description = dto.description();
+        }
+
+        if (dto.value() != null) {
+            this.value = dto.value();
+        }
+
+        if (dto.date() != null) {
+            this.date = dto.date();
+        }
+    }
 }

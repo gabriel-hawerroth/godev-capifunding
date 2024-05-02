@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Logger;
 
 @Service
 public class UtilsService {
@@ -23,7 +24,9 @@ public class UtilsService {
     private static final List<String> VALID_EXTENSIONS =
             Arrays.asList("jpg", "jpeg", "png", "jfif", "webp");
 
-    private static final long MAX_FILE_SIZE = 3 * 1024 * 1024; // 3Mb in bytes
+    private static final int MAX_FILE_SIZE = 3 * 1024 * 1024; // 3Mb in bytes
+
+    private final Logger logger = Logger.getLogger(getClass().getName());
 
     private static String checkImageValidity(MultipartFile file) {
         if (file == null || file.getSize() == 0) {
@@ -81,7 +84,7 @@ public class UtilsService {
             if (fileExtension.equals("png") || fileExtension.equals("webp")) {
                 return file.getBytes();
             } else {
-                System.out.println("uncompressed file size: " + file.getSize());
+                logger.info("uncompressed file size: " + file.getSize());
 
                 final ByteArrayInputStream inputStream = new ByteArrayInputStream(file.getBytes());
 
@@ -95,7 +98,7 @@ public class UtilsService {
                         .outputQuality(0.5)
                         .toOutputStream(outputStream);
 
-                System.out.println("compressed file size: " + outputStream.size());
+                logger.info(() -> "compressed file size: " + outputStream.size());
 
                 return outputStream.toByteArray();
             }

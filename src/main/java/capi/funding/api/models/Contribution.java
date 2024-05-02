@@ -38,8 +38,8 @@ public class Contribution {
     @Column(nullable = false)
     private LocalDateTime date;
 
-    public Contribution(CreateContributionDTO createContributionDTO) {
-        this.project_id = createContributionDTO.project_id();
-        this.value = createContributionDTO.value();
+    public Contribution(CreateContributionDTO dto) {
+        this.project_id = dto.project_id();
+        this.value = dto.value();
     }
 }

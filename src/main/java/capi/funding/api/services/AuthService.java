@@ -14,7 +14,7 @@ import capi.funding.api.repository.UserRepository;
 import capi.funding.api.security.TokenService;
 import jakarta.mail.AuthenticationFailedException;
 import jakarta.mail.MessagingException;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -24,7 +24,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 public class AuthService {
 
     private final AuthenticationManager authenticationManager;
@@ -34,6 +33,15 @@ public class AuthService {
     private final EmailService emailService;
 
     private final UserRepository userRepository;
+
+    @Autowired
+    public AuthService(AuthenticationManager authenticationManager, BCryptPasswordEncoder bCrypt, TokenService tokenService, EmailService emailService, UserRepository userRepository) {
+        this.authenticationManager = authenticationManager;
+        this.bCrypt = bCrypt;
+        this.tokenService = tokenService;
+        this.emailService = emailService;
+        this.userRepository = userRepository;
+    }
 
     public LoginResponseDTO doLogin(AuthenticationDTO authDTO) {
         final var usernamePassword = new UsernamePasswordAuthenticationToken(authDTO.email(), authDTO.password());

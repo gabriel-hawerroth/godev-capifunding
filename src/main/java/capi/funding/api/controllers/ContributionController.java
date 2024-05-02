@@ -4,7 +4,7 @@ import capi.funding.api.dto.CreateContributionDTO;
 import capi.funding.api.models.Contribution;
 import capi.funding.api.services.ContributionService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,11 +12,15 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/contribution")
 public class ContributionController {
 
     private final ContributionService contributionService;
+
+    @Autowired
+    public ContributionController(ContributionService contributionService) {
+        this.contributionService = contributionService;
+    }
 
     @GetMapping("/project/{id}")
     private ResponseEntity<List<Contribution>> getProjectContributions(@PathVariable long id) {

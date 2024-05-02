@@ -4,18 +4,25 @@ import capi.funding.api.dto.NewPasswordDTO;
 import capi.funding.api.dto.UserEditDTO;
 import capi.funding.api.models.User;
 import capi.funding.api.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
-@RequiredArgsConstructor
 public class UserService {
 
     private final UtilsService utilsService;
     private final BCryptPasswordEncoder bcrypt;
+
     private final UserRepository userRepository;
+
+    @Autowired
+    public UserService(UtilsService utilsService, BCryptPasswordEncoder bcrypt, UserRepository userRepository) {
+        this.utilsService = utilsService;
+        this.bcrypt = bcrypt;
+        this.userRepository = userRepository;
+    }
 
     public User getTokenUser() {
         return utilsService.getAuthUser();
@@ -43,6 +50,14 @@ public class UserService {
         user.setProfile_image(
                 utilsService.checkImageValidityAndCompress(file)
         );
+
+        return userRepository.save(user);
+    }
+
+    public User removeProfileImage() {
+        final User user = utilsService.getAuthUser();
+
+        user.setProfile_image(null);
 
         return userRepository.save(user);
     }

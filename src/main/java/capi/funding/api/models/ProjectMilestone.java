@@ -49,9 +49,22 @@ public class ProjectMilestone {
         this.project_id = dto.project_id();
         this.title = dto.title();
         this.description = dto.description();
-        this.sequence = dto.sequence();
-        this.completed = dto.completed();
-        this.contribution_goal = dto.contribution_goal();
+
+        if (dto.sequence() != null) {
+            this.sequence = dto.sequence();
+        }
+
+        if (dto.completed() == null) {
+            this.completed = false;
+        } else {
+            this.completed = dto.completed();
+        }
+
+        if (dto.contribution_goal() == null) {
+            this.contribution_goal = BigDecimal.ZERO;
+        } else {
+            this.contribution_goal = dto.contribution_goal();
+        }
     }
 
     public void updateValues(EditProjectMilestoneDTO dto) {

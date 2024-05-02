@@ -65,4 +65,11 @@ public class ExceptionHandlers {
                 new ResponseError(ex.getMessage())
         );
     }
+
+    @ExceptionHandler(NeedToFollowOrderException.class)
+    public ResponseEntity<ResponseError> needToFollowOrderException(NeedToFollowOrderException ex) {
+        return ResponseEntity.badRequest().body(
+                new ResponseError(ex.getMessage())
+        );
+    }
 }

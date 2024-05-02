@@ -15,11 +15,11 @@ public interface ProjectMilestoneRepository extends JpaRepository<ProjectMilesto
             FROM
                 project_milestone pm
             WHERE
-                pm.project_id = :project_id
+                pm.project_id = :projectId
             ORDER BY
-                pm.sequence
+                pm.sequence asc
             """, nativeQuery = true)
-    List<ProjectMilestone> findByProject(long project_id);
+    List<ProjectMilestone> findByProject(long projectId);
 
     @Query(value = """
             SELECT
@@ -27,12 +27,12 @@ public interface ProjectMilestoneRepository extends JpaRepository<ProjectMilesto
             FROM
             	project_milestone pm
             WHERE
-            	pm.project_id = :project_id
+            	pm.project_id = :projectId
             ORDER BY
-            	pm."sequence" DESC
-            LIMIT 1;
+            	pm.sequence DESC
+            LIMIT 1
             """, nativeQuery = true)
-    Optional<Integer> findLastProjectSequence(long project_id);
+    Optional<Integer> findLastProjectSequence(long projectId);
 
     @Query(value = """
             SELECT
@@ -40,9 +40,35 @@ public interface ProjectMilestoneRepository extends JpaRepository<ProjectMilesto
             FROM
                 project_milestone pm
             WHERE
-                pm.project_id = :project_id
+                pm.project_id = :projectId
                 AND pm.sequence = :sequence
+                AND pm.id <> :id
             LIMIT 1
             """, nativeQuery = true)
-    Optional<ProjectMilestone> findByProjectAndSequence(long project_id, int sequence);
+    Optional<ProjectMilestone> findByProjectAndSequence(long projectId, int sequence, Long id);
+
+    @Query(value = """
+            SELECT
+                *
+            FROM
+                project_milestone pm
+            WHERE
+                pm.project_id = :projectId
+                AND pm.sequence < :sequence
+                AND pm.completed is false
+            """, nativeQuery = true)
+    List<ProjectMilestone> findByProjectAndMinorSequence(long projectId, long sequence);
+
+    @Query(value = """
+            SELECT
+                *
+            FROM
+                project_milestone pm
+            WHERE
+                pm.project_id = :projectId
+                AND pm.completed is true
+            ORDER BY
+                pm.sequence ASC
+            """, nativeQuery = true)
+    List<ProjectMilestone> findByProjectAndCompleted(long projectId);
 }
