@@ -2,8 +2,10 @@ package capi.funding.api.services;
 
 import capi.funding.api.dto.EmailDTO;
 import capi.funding.api.enums.EmailType;
+import capi.funding.api.utils.Utils;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import lombok.NonNull;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -13,11 +15,16 @@ public class EmailService {
 
     private final JavaMailSender javaMailSender;
 
-    public EmailService(JavaMailSender javaMailSender) {
+    private final Utils utils;
+
+    public EmailService(JavaMailSender javaMailSender, Utils utils) {
         this.javaMailSender = javaMailSender;
+        this.utils = utils;
     }
 
-    public void sendMail(EmailDTO email) throws MessagingException {
+    public void sendMail(@NonNull EmailDTO email) throws MessagingException {
+        utils.validateObject(email);
+
         final MimeMessage message = javaMailSender.createMimeMessage();
         final MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
@@ -28,7 +35,7 @@ public class EmailService {
         javaMailSender.send(message);
     }
 
-    public String buildEmailTemplate(EmailType emailType, Long userId, String token) {
+    public String buildEmailTemplate(@NonNull EmailType emailType, long userId, @NonNull String token) {
         final String url = "http://localhost:8080/auth/" + emailType.getValue() + "/" + userId + "/" + token;
 
         final String action = switch (emailType) {

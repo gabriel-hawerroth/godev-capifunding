@@ -3,13 +3,14 @@ package capi.funding.api.utils;
 import capi.funding.api.entity.Project;
 import capi.funding.api.enums.ProjectStatusEnum;
 import capi.funding.api.infra.exceptions.ProjectEditabilityException;
+import lombok.NonNull;
 
 public class ProjectUtils {
 
     private ProjectUtils() {
     }
 
-    public static void checkProjectEditability(Project project) {
+    public static void checkProjectEditability(@NonNull Project project) {
         final long projectStatusId = project.getStatus_id();
 
         if (projectStatusId == ProjectStatusEnum.DONE.getValue()) {

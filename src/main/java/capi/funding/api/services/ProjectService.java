@@ -6,6 +6,7 @@ import capi.funding.api.dto.InterfacesSQL;
 import capi.funding.api.entity.Project;
 import capi.funding.api.entity.ProjectMilestone;
 import capi.funding.api.enums.ProjectStatusEnum;
+import capi.funding.api.infra.exceptions.InvalidParametersException;
 import capi.funding.api.infra.exceptions.MilestoneSequenceException;
 import capi.funding.api.infra.exceptions.NotFoundException;
 import capi.funding.api.repository.ProjectRepository;
@@ -42,6 +43,10 @@ public class ProjectService {
     }
 
     public Project findById(long id) {
+        if (id < 1) {
+            throw new InvalidParametersException("id must be valid");
+        }
+
         return projectRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_MESSAGE));
     }
@@ -146,6 +151,10 @@ public class ProjectService {
     }
 
     public boolean checkIfExistsById(long projectId) {
+        if (projectId < 1) {
+            throw new InvalidParametersException("id must be valid");
+        }
+
         return projectRepository.existsById(projectId);
     }
 

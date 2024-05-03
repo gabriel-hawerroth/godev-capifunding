@@ -10,6 +10,7 @@ import capi.funding.api.infra.exceptions.MilestoneSequenceException;
 import capi.funding.api.infra.exceptions.NotFoundException;
 import capi.funding.api.repository.ProjectMilestoneRepository;
 import capi.funding.api.utils.Utils;
+import lombok.NonNull;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -106,7 +107,7 @@ public class ProjectMilestoneService {
         return repository.save(milestone);
     }
 
-    private void validateSequenceNumber(Integer sequence, ProjectMilestone milestone) {
+    private void validateSequenceNumber(Integer sequence, @NonNull ProjectMilestone milestone) {
         if (milestone.getId() != null && sequence == null) return;
 
         if (sequence == null) {
@@ -125,7 +126,7 @@ public class ProjectMilestoneService {
         }
     }
 
-    private void validateNeedToFollowOrder(Project project, ProjectMilestone milestone) {
+    private void validateNeedToFollowOrder(@NonNull Project project, @NonNull ProjectMilestone milestone) {
         if (project.isNeed_to_follow_order() && milestone.isCompleted()) {
             final List<ProjectMilestone> projectMilestoneList = repository
                     .findByProjectAndMinorSequence(milestone.getProject_id(), milestone.getSequence());
@@ -137,6 +138,10 @@ public class ProjectMilestoneService {
     }
 
     public List<ProjectMilestone> findByProjectAndCompleted(long projectId) {
+        if (projectId < 1) {
+            throw new InvalidParametersException("invalid project id");
+        }
+
         return repository.findByProjectAndCompleted(projectId);
     }
 }

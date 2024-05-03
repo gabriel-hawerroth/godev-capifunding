@@ -14,6 +14,7 @@ import capi.funding.api.repository.UserRepository;
 import capi.funding.api.security.TokenService;
 import jakarta.mail.AuthenticationFailedException;
 import jakarta.mail.MessagingException;
+import lombok.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -83,7 +84,7 @@ public class AuthService {
         userRepository.save(user);
     }
 
-    private void sendActivateAccountEmail(String userMail, Long userId) {
+    private void sendActivateAccountEmail(@NonNull String userMail, long userId) {
         try {
             final String token = bCrypt.encode(userMail);
 

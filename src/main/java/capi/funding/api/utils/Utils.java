@@ -1,13 +1,18 @@
 package capi.funding.api.utils;
 
+import capi.funding.api.dto.InvalidFieldsDTO;
 import capi.funding.api.entity.User;
 import capi.funding.api.infra.exceptions.InvalidFileException;
 import capi.funding.api.infra.exceptions.InvalidParametersException;
+import capi.funding.api.infra.exceptions.ValidationException;
 import capi.funding.api.infra.exceptions.WithoutPermissionException;
+import lombok.NonNull;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.Errors;
+import org.springframework.validation.Validator;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
@@ -26,10 +31,17 @@ public class Utils {
 
     private static final int MAX_FILE_SIZE = 3 * 1024 * 1024; // 3Mb in bytes
 
-    private final Logger logger = Logger.getLogger(getClass().getName());
+    private final Logger logger;
 
-    private static String checkImageValidity(MultipartFile file) {
-        if (file == null || file.getSize() == 0) {
+    private final Validator validator;
+
+    public Utils(Validator validator) {
+        this.validator = validator;
+        this.logger = Logger.getLogger(getClass().getName());
+    }
+
+    private static String checkImageValidity(@NonNull MultipartFile file) {
+        if (file.getSize() == 0) {
             throw new InvalidParametersException("invalid file");
         }
 
@@ -77,7 +89,7 @@ public class Utils {
         }
     }
 
-    public byte[] checkImageValidityAndCompress(MultipartFile file) {
+    public byte[] checkImageValidityAndCompress(@NonNull MultipartFile file) {
         final String fileExtension = checkImageValidity(file);
 
         try {
@@ -104,6 +116,19 @@ public class Utils {
             }
         } catch (IOException e) {
             throw new InvalidFileException(e.getMessage());
+        }
+    }
+
+    public void validateObject(@NonNull Object object) {
+        final Errors errors = validator.validateObject(object);
+
+        if (errors.hasErrors()) {
+            final List<InvalidFieldsDTO> invalidFieldsDTOList =
+                    errors.getFieldErrors().stream()
+                            .map(InvalidFieldsDTO::new)
+                            .toList();
+
+            throw new ValidationException(invalidFieldsDTOList);
         }
     }
 }

@@ -29,6 +29,13 @@ public class ExceptionHandlers {
         );
     }
 
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<List<InvalidFieldsDTO>> validationException(ValidationException ex) {
+        return ResponseEntity.badRequest().body(
+                ex.getErrors()
+        );
+    }
+
     @ExceptionHandler(AuthException.class)
     public ResponseEntity<ResponseError> authException(AuthException ex) {
         return ResponseEntity.badRequest().body(
