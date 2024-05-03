@@ -5,7 +5,6 @@ import capi.funding.api.dto.EditProjectSpendDTO;
 import capi.funding.api.models.ProjectSpend;
 import capi.funding.api.services.ProjectSpendService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +17,6 @@ public class ProjectSpendController {
 
     private final ProjectSpendService service;
 
-    @Autowired
     public ProjectSpendController(ProjectSpendService service) {
         this.service = service;
     }

@@ -7,7 +7,6 @@ import capi.funding.api.exceptions.NotFoundException;
 import capi.funding.api.models.Contribution;
 import capi.funding.api.models.Project;
 import capi.funding.api.repository.ContributionRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -21,7 +20,6 @@ public class ContributionService {
 
     private final ContributionRepository contributionRepository;
 
-    @Autowired
     public ContributionService(UtilsService utilsService, ProjectService projectService, ContributionRepository contributionRepository) {
         this.utilsService = utilsService;
         this.projectService = projectService;

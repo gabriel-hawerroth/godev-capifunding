@@ -10,7 +10,6 @@ import capi.funding.api.exceptions.NotFoundException;
 import capi.funding.api.models.Project;
 import capi.funding.api.models.ProjectMilestone;
 import capi.funding.api.repository.ProjectRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,7 +29,6 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
 
     @Lazy
-    @Autowired
     public ProjectService(ProjectRepository projectRepository, ProjectMilestoneService milestoneService, UtilsService utilsService) {
         this.projectRepository = projectRepository;
         this.milestoneService = milestoneService;

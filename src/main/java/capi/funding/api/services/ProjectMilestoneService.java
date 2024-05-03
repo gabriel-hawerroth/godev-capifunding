@@ -9,7 +9,6 @@ import capi.funding.api.exceptions.NotFoundException;
 import capi.funding.api.models.Project;
 import capi.funding.api.models.ProjectMilestone;
 import capi.funding.api.repository.ProjectMilestoneRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -28,7 +27,6 @@ public class ProjectMilestoneService {
     private final ProjectMilestoneRepository repository;
 
     @Lazy
-    @Autowired
     public ProjectMilestoneService(UtilsService utilsService, ProjectService projectService, ProjectMilestoneRepository repository) {
         this.utilsService = utilsService;
         this.projectService = projectService;

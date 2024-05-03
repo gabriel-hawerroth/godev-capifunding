@@ -2,7 +2,6 @@ package capi.funding.api;
 
 import capi.funding.api.security.SecurityFilter;
 import capi.funding.api.services.ProjectService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +12,6 @@ public class Schedule {
 
     private final ProjectService projectService;
 
-    @Autowired
     public Schedule(SecurityFilter securityFilter, ProjectService projectService) {
         this.securityFilter = securityFilter;
         this.projectService = projectService;

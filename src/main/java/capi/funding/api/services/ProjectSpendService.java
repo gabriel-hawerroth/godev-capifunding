@@ -6,7 +6,6 @@ import capi.funding.api.exceptions.NotFoundException;
 import capi.funding.api.models.Project;
 import capi.funding.api.models.ProjectSpend;
 import capi.funding.api.repository.ProjectSpendRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,7 +20,6 @@ public class ProjectSpendService {
 
     private final ProjectSpendRepository repository;
 
-    @Autowired
     public ProjectSpendService(UtilsService utilsService, ProjectService projectService, ProjectSpendRepository repository) {
         this.utilsService = utilsService;
         this.projectService = projectService;

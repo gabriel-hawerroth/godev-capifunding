@@ -5,7 +5,6 @@ import capi.funding.api.dto.EditProjectMilestoneDTO;
 import capi.funding.api.models.ProjectMilestone;
 import capi.funding.api.services.ProjectMilestoneService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +17,6 @@ public class ProjectMilestoneController {
 
     private final ProjectMilestoneService service;
 
-    @Autowired
     public ProjectMilestoneController(ProjectMilestoneService service) {
         this.service = service;
     }

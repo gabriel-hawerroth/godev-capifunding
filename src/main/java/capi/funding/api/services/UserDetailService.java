@@ -2,7 +2,6 @@ package capi.funding.api.services;
 
 import capi.funding.api.exceptions.AuthException;
 import capi.funding.api.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -13,7 +12,6 @@ public class UserDetailService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
-    @Autowired
     public UserDetailService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }

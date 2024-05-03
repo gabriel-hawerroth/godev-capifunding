@@ -14,7 +14,6 @@ import capi.funding.api.repository.UserRepository;
 import capi.funding.api.security.TokenService;
 import jakarta.mail.AuthenticationFailedException;
 import jakarta.mail.MessagingException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -34,7 +33,6 @@ public class AuthService {
 
     private final UserRepository userRepository;
 
-    @Autowired
     public AuthService(AuthenticationManager authenticationManager, BCryptPasswordEncoder bCrypt, TokenService tokenService, EmailService emailService, UserRepository userRepository) {
         this.authenticationManager = authenticationManager;
         this.bCrypt = bCrypt;

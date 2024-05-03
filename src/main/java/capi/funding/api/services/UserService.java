@@ -4,7 +4,6 @@ import capi.funding.api.dto.NewPasswordDTO;
 import capi.funding.api.dto.UserEditDTO;
 import capi.funding.api.models.User;
 import capi.funding.api.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,7 +16,6 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    @Autowired
     public UserService(UtilsService utilsService, BCryptPasswordEncoder bcrypt, UserRepository userRepository) {
         this.utilsService = utilsService;
         this.bcrypt = bcrypt;
