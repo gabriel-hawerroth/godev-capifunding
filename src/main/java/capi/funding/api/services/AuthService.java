@@ -4,12 +4,12 @@ import capi.funding.api.dto.AuthenticationDTO;
 import capi.funding.api.dto.CreateUserDTO;
 import capi.funding.api.dto.EmailDTO;
 import capi.funding.api.dto.LoginResponseDTO;
+import capi.funding.api.entity.User;
 import capi.funding.api.enums.EmailType;
-import capi.funding.api.exceptions.AuthException;
-import capi.funding.api.exceptions.NotFoundException;
-import capi.funding.api.exceptions.UnsendedEmailException;
-import capi.funding.api.exceptions.WithoutPermissionException;
-import capi.funding.api.models.User;
+import capi.funding.api.infra.exceptions.AuthException;
+import capi.funding.api.infra.exceptions.EmailSendException;
+import capi.funding.api.infra.exceptions.NotFoundException;
+import capi.funding.api.infra.exceptions.WithoutPermissionException;
 import capi.funding.api.repository.UserRepository;
 import capi.funding.api.security.TokenService;
 import jakarta.mail.AuthenticationFailedException;
@@ -96,10 +96,10 @@ public class AuthService {
             );
         } catch (AuthenticationFailedException authenticationFailedException) {
             userRepository.deleteById(userId);
-            throw new UnsendedEmailException("failed to authenticate to email");
+            throw new EmailSendException("failed to authenticate to email");
         } catch (MessagingException messagingException) {
             userRepository.deleteById(userId);
-            throw new UnsendedEmailException("failed to send account activation email");
+            throw new EmailSendException("failed to send account activation email");
         }
     }
 }

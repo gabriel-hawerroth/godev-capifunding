@@ -3,7 +3,7 @@ package capi.funding.api.controllers;
 import capi.funding.api.dto.AuthenticationDTO;
 import capi.funding.api.dto.CreateUserDTO;
 import capi.funding.api.dto.LoginResponseDTO;
-import capi.funding.api.models.User;
+import capi.funding.api.entity.User;
 import capi.funding.api.services.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;

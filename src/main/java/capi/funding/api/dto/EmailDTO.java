@@ -8,7 +8,7 @@ public record EmailDTO(
         @Email
         @NotNull
         @NotBlank
-        String addressee,
+        String address,
 
         @NotNull
         @NotBlank

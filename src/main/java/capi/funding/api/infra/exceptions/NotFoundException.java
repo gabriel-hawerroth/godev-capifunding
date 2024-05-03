@@ -1,4 +1,4 @@
-package capi.funding.api.exceptions;
+package capi.funding.api.infra.exceptions;
 
 public class NotFoundException extends RuntimeException {
     public NotFoundException() {

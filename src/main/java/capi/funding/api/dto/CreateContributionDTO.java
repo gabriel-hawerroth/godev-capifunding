@@ -1,6 +1,6 @@
 package capi.funding.api.dto;
 
-import capi.funding.api.models.Contribution;
+import capi.funding.api.entity.Contribution;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;

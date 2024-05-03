@@ -1,6 +1,6 @@
 package capi.funding.api.repository;
 
-import capi.funding.api.models.ProjectSpend;
+import capi.funding.api.entity.ProjectSpend;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

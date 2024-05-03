@@ -1,6 +1,6 @@
 package capi.funding.api.repository;
 
-import capi.funding.api.models.ProjectMilestone;
+import capi.funding.api.entity.ProjectMilestone;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

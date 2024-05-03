@@ -1,4 +1,4 @@
-package capi.funding.api;
+package capi.funding.api.infra.scheduling;
 
 import capi.funding.api.security.SecurityFilter;
 import capi.funding.api.services.ProjectService;
@@ -17,12 +17,12 @@ public class Schedule {
         this.projectService = projectService;
     }
 
-    @Scheduled(cron = "0 30 3 * * *")
+    @Scheduled(cron = "0 30 3 * * *") // every day at 03:30AM
     public void clearUsersCache() {
         securityFilter.usersCache.clear();
     }
 
-    @Scheduled(cron = "0 1 0 * * *")
+    @Scheduled(cron = "0 1 0 * * *") // every day at 00:01AM
     public void concludeAllProjectsEndingYesterdayNotCancelled() {
         projectService.concludeAllProjectsEndingYesterdayNotCancelled();
     }

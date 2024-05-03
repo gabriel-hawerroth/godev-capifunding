@@ -1,4 +1,4 @@
-package capi.funding.api.models;
+package capi.funding.api.entity;
 
 import capi.funding.api.dto.CreateContributionDTO;
 import jakarta.persistence.*;

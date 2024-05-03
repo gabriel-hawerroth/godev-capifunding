@@ -1,11 +1,14 @@
-package capi.funding.api;
+package capi.funding.api.infra.exceptions;
 
+import capi.funding.api.dto.InvalidFieldsDTO;
 import capi.funding.api.dto.ResponseError;
-import capi.funding.api.exceptions.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.List;
 
 @RestControllerAdvice
 public class ExceptionHandlers {
@@ -14,6 +17,15 @@ public class ExceptionHandlers {
     public ResponseEntity<ResponseError> exception(Exception ex) {
         return ResponseEntity.badRequest().body(
                 new ResponseError(ex.getMessage())
+        );
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<List<InvalidFieldsDTO>> methodArgumentNotValidException(MethodArgumentNotValidException ex) {
+        List<FieldError> errors = ex.getFieldErrors();
+
+        return ResponseEntity.badRequest().body(
+                errors.stream().map(InvalidFieldsDTO::new).toList()
         );
     }
 
@@ -38,15 +50,8 @@ public class ExceptionHandlers {
         );
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ResponseError> methodArgumentNotValidException(MethodArgumentNotValidException ex) {
-        return ResponseEntity.badRequest().body(
-                new ResponseError(ex.getMessage())
-        );
-    }
-
-    @ExceptionHandler(TokenCreationException.class)
-    public ResponseEntity<ResponseError> tokenCreationException(TokenCreationException ex) {
+    @ExceptionHandler(TokenGenerateException.class)
+    public ResponseEntity<ResponseError> tokenCreationException(TokenGenerateException ex) {
         return ResponseEntity.internalServerError().body(
                 new ResponseError(ex.getMessage())
         );
@@ -59,15 +64,22 @@ public class ExceptionHandlers {
         );
     }
 
-    @ExceptionHandler(UnsendedEmailException.class)
-    public ResponseEntity<ResponseError> unsendedEmailException(UnsendedEmailException ex) {
+    @ExceptionHandler(EmailSendException.class)
+    public ResponseEntity<ResponseError> unsendedEmailException(EmailSendException ex) {
         return ResponseEntity.badRequest().body(
                 new ResponseError(ex.getMessage())
         );
     }
 
-    @ExceptionHandler(NeedToFollowOrderException.class)
-    public ResponseEntity<ResponseError> needToFollowOrderException(NeedToFollowOrderException ex) {
+    @ExceptionHandler(MilestoneSequenceException.class)
+    public ResponseEntity<ResponseError> needToFollowOrderException(MilestoneSequenceException ex) {
+        return ResponseEntity.badRequest().body(
+                new ResponseError(ex.getMessage())
+        );
+    }
+
+    @ExceptionHandler(ProjectEditabilityException.class)
+    public ResponseEntity<ResponseError> projectEditabilityException(ProjectEditabilityException ex) {
         return ResponseEntity.badRequest().body(
                 new ResponseError(ex.getMessage())
         );

@@ -3,13 +3,13 @@ package capi.funding.api.services;
 import capi.funding.api.dto.CreateProjectDTO;
 import capi.funding.api.dto.EditProjectDTO;
 import capi.funding.api.dto.InterfacesSQL;
+import capi.funding.api.entity.Project;
+import capi.funding.api.entity.ProjectMilestone;
 import capi.funding.api.enums.ProjectStatusEnum;
-import capi.funding.api.exceptions.InvalidParametersException;
-import capi.funding.api.exceptions.NeedToFollowOrderException;
-import capi.funding.api.exceptions.NotFoundException;
-import capi.funding.api.models.Project;
-import capi.funding.api.models.ProjectMilestone;
+import capi.funding.api.infra.exceptions.MilestoneSequenceException;
+import capi.funding.api.infra.exceptions.NotFoundException;
 import capi.funding.api.repository.ProjectRepository;
+import capi.funding.api.utils.Utils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,21 +18,23 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static capi.funding.api.utils.ProjectUtils.checkProjectEditability;
+
 @Service
 public class ProjectService {
 
     private static final String NOT_FOUND_MESSAGE = "project not found";
 
-    private final UtilsService utilsService;
+    private final Utils utils;
     private final ProjectMilestoneService milestoneService;
 
     private final ProjectRepository projectRepository;
 
     @Lazy
-    public ProjectService(ProjectRepository projectRepository, ProjectMilestoneService milestoneService, UtilsService utilsService) {
+    public ProjectService(ProjectRepository projectRepository, ProjectMilestoneService milestoneService, Utils utils) {
         this.projectRepository = projectRepository;
         this.milestoneService = milestoneService;
-        this.utilsService = utilsService;
+        this.utils = utils;
     }
 
     public List<InterfacesSQL.ProjectsList> getProjectsList() {
@@ -45,7 +47,7 @@ public class ProjectService {
     }
 
     public Project createNew(CreateProjectDTO dto) {
-        final long userId = utilsService.getAuthUser().getId();
+        final long userId = utils.getAuthUser().getId();
 
         final Project project = dto.toProject();
 
@@ -56,6 +58,10 @@ public class ProjectService {
             project.setInitial_date(LocalDate.now());
         }
 
+        if (dto.need_to_follow_order() == null) {
+            project.setNeed_to_follow_order(false);
+        }
+
         return projectRepository.save(project);
     }
 
@@ -63,9 +69,9 @@ public class ProjectService {
         final Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_MESSAGE));
 
-        utilsService.checkPermission(project.getCreator_id());
+        utils.checkPermission(project.getCreator_id());
 
-        checkProjectEditability(project.getStatus_id());
+        checkProjectEditability(project);
 
         project.updateValues(dto);
 
@@ -77,7 +83,7 @@ public class ProjectService {
 
                 for (ProjectMilestone milestone : completedMilestones) {
                     if (previousSequence != null && milestone.getSequence() < previousSequence) {
-                        throw new NeedToFollowOrderException("there are steps that have already been completed out of order");
+                        throw new MilestoneSequenceException("there are steps that have already been completed out of order");
                     }
                     previousSequence = milestone.getSequence();
                 }
@@ -91,11 +97,11 @@ public class ProjectService {
         final Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_MESSAGE));
 
-        utilsService.checkPermission(project.getCreator_id());
+        utils.checkPermission(project.getCreator_id());
 
-        checkProjectEditability(project.getStatus_id());
+        checkProjectEditability(project);
 
-        project.setCover_image(utilsService.checkImageValidityAndCompress(file));
+        project.setCover_image(utils.checkImageValidityAndCompress(file));
 
         return projectRepository.save(project);
     }
@@ -104,9 +110,9 @@ public class ProjectService {
         final Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_MESSAGE));
 
-        utilsService.checkPermission(project.getCreator_id());
+        utils.checkPermission(project.getCreator_id());
 
-        checkProjectEditability(project.getStatus_id());
+        checkProjectEditability(project);
 
         project.setCover_image(null);
 
@@ -117,9 +123,9 @@ public class ProjectService {
         final Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_MESSAGE));
 
-        utilsService.checkPermission(project.getCreator_id());
+        utils.checkPermission(project.getCreator_id());
 
-        checkProjectEditability(project.getStatus_id());
+        checkProjectEditability(project);
 
         project.setStatus_id(ProjectStatusEnum.DONE.getValue());
 
@@ -130,9 +136,9 @@ public class ProjectService {
         final Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_MESSAGE));
 
-        utilsService.checkPermission(project.getCreator_id());
+        utils.checkPermission(project.getCreator_id());
 
-        checkProjectEditability(project.getStatus_id());
+        checkProjectEditability(project);
 
         project.setStatus_id(ProjectStatusEnum.CANCELED.getValue());
 
@@ -141,14 +147,6 @@ public class ProjectService {
 
     public boolean checkIfExistsById(long projectId) {
         return projectRepository.existsById(projectId);
-    }
-
-    public void checkProjectEditability(long projectStatusId) {
-        if (projectStatusId == ProjectStatusEnum.DONE.getValue()) {
-            throw new InvalidParametersException("this project has already been concluded and cannot be edited");
-        } else if (projectStatusId == ProjectStatusEnum.CANCELED.getValue()) {
-            throw new InvalidParametersException("this project has already been cancelled and cannot be edited");
-        }
     }
 
     public void concludeAllProjectsEndingYesterdayNotCancelled() {

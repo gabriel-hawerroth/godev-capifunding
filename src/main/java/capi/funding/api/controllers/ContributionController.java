@@ -1,7 +1,7 @@
 package capi.funding.api.controllers;
 
 import capi.funding.api.dto.CreateContributionDTO;
-import capi.funding.api.models.Contribution;
+import capi.funding.api.entity.Contribution;
 import capi.funding.api.services.ContributionService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -21,21 +21,21 @@ public class ContributionController {
     }
 
     @GetMapping("/project/{id}")
-    private ResponseEntity<List<Contribution>> getProjectContributions(@PathVariable long id) {
+    public ResponseEntity<List<Contribution>> getProjectContributions(@PathVariable long id) {
         return ResponseEntity.ok(
                 contributionService.getProjectContributions(id)
         );
     }
 
     @GetMapping("/{id}")
-    private ResponseEntity<Contribution> getById(@PathVariable long id) {
+    public ResponseEntity<Contribution> findById(@PathVariable long id) {
         return ResponseEntity.ok(
-                contributionService.getById(id)
+                contributionService.findById(id)
         );
     }
 
     @PostMapping
-    private ResponseEntity<Contribution> createNew(@RequestBody @Valid CreateContributionDTO dto) {
+    public ResponseEntity<Contribution> createNew(@RequestBody @Valid CreateContributionDTO dto) {
         final Contribution contribution = contributionService.createNew(dto);
 
         final URI uri = URI.create("/contribution/" + contribution.getId());

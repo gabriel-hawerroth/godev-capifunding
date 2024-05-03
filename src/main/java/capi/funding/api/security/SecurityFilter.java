@@ -1,7 +1,7 @@
 package capi.funding.api.security;
 
-import capi.funding.api.exceptions.NotFoundException;
-import capi.funding.api.models.User;
+import capi.funding.api.entity.User;
+import capi.funding.api.infra.exceptions.NotFoundException;
 import capi.funding.api.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

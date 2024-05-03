@@ -4,16 +4,18 @@ package capi.funding.api.dto;
 public class InterfacesSQL {
 
     public interface ProjectsList {
-        long getId();
+        long getProjectId();
 
-        String getTitle();
+        String getProjectTitle();
 
-        double getPercentage_raised();
+        byte[] getCoverImage();
 
-        byte[] getProject_image();
+        String getCreatorName();
 
-        String getCreator_name();
+        byte[] getCreatorProfileImage();
 
-        byte[] getCreator_image();
+        int getRemainingDays();
+
+        double getPercentageRaised();
     }
 }

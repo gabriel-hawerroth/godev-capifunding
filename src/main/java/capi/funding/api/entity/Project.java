@@ -1,4 +1,4 @@
-package capi.funding.api.models;
+package capi.funding.api.entity;
 
 import capi.funding.api.dto.CreateProjectDTO;
 import capi.funding.api.dto.EditProjectDTO;
@@ -33,7 +33,7 @@ public class Project {
     private String description;
 
     @Positive
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     private long creator_id;
 
     @Positive

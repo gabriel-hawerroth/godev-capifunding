@@ -1,7 +1,7 @@
 package capi.funding.api.security;
 
-import capi.funding.api.exceptions.TokenCreationException;
-import capi.funding.api.models.User;
+import capi.funding.api.entity.User;
+import capi.funding.api.infra.exceptions.TokenGenerateException;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
@@ -29,7 +29,7 @@ public class TokenService {
                     .withExpiresAt(genExpirationDate())
                     .sign(algorithm);
         } catch (JWTCreationException exception) {
-            throw new TokenCreationException("Error while generating token");
+            throw new TokenGenerateException("Error while generating token");
         }
     }
 

@@ -1,27 +1,29 @@
 package capi.funding.api.services;
 
 import capi.funding.api.dto.CreateContributionDTO;
+import capi.funding.api.entity.Contribution;
+import capi.funding.api.entity.Project;
 import capi.funding.api.enums.ProjectStatusEnum;
-import capi.funding.api.exceptions.InvalidParametersException;
-import capi.funding.api.exceptions.NotFoundException;
-import capi.funding.api.models.Contribution;
-import capi.funding.api.models.Project;
+import capi.funding.api.infra.exceptions.InvalidParametersException;
+import capi.funding.api.infra.exceptions.NotFoundException;
 import capi.funding.api.repository.ContributionRepository;
+import capi.funding.api.utils.Utils;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class ContributionService {
 
-    private final UtilsService utilsService;
+    private final Utils utils;
     private final ProjectService projectService;
 
     private final ContributionRepository contributionRepository;
 
-    public ContributionService(UtilsService utilsService, ProjectService projectService, ContributionRepository contributionRepository) {
-        this.utilsService = utilsService;
+    public ContributionService(Utils utils, ProjectService projectService, ContributionRepository contributionRepository) {
+        this.utils = utils;
         this.projectService = projectService;
         this.contributionRepository = contributionRepository;
     }
@@ -34,7 +36,7 @@ public class ContributionService {
         return contributionRepository.getProjectContributions(projectId);
     }
 
-    public Contribution getById(long id) {
+    public Contribution findById(long id) {
         return contributionRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("contribution not found"));
     }
@@ -45,8 +47,12 @@ public class ContributionService {
         final Project project = projectService.findById(contribution.getProject_id());
         validateProjectStatusForContribution(project.getStatus_id());
 
+        if (contribution.getValue().compareTo(BigDecimal.valueOf(5)) < 0) {
+            throw new InvalidParametersException("the minimum amount to contribute is $5");
+        }
+
         contribution.setUser_id(
-                utilsService.getAuthUser().getId()
+                utils.getAuthUser().getId()
         );
 
         contribution.setDate(

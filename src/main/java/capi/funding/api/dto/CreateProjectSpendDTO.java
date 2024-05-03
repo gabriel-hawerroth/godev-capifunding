@@ -1,6 +1,6 @@
 package capi.funding.api.dto;
 
-import capi.funding.api.models.ProjectSpend;
+import capi.funding.api.entity.ProjectSpend;
 import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;

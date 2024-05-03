@@ -1,6 +1,6 @@
 package capi.funding.api.dto;
 
-import capi.funding.api.models.User;
+import capi.funding.api.entity.User;
 import jakarta.validation.constraints.*;
 
 public record CreateUserDTO(

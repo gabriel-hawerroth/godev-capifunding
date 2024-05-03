@@ -1,6 +1,6 @@
 package capi.funding.api.services;
 
-import capi.funding.api.exceptions.AuthException;
+import capi.funding.api.infra.exceptions.AuthException;
 import capi.funding.api.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

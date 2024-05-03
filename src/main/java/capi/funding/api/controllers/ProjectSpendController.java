@@ -2,7 +2,7 @@ package capi.funding.api.controllers;
 
 import capi.funding.api.dto.CreateProjectSpendDTO;
 import capi.funding.api.dto.EditProjectSpendDTO;
-import capi.funding.api.models.ProjectSpend;
+import capi.funding.api.entity.ProjectSpend;
 import capi.funding.api.services.ProjectSpendService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -22,21 +22,21 @@ public class ProjectSpendController {
     }
 
     @GetMapping("/get-by-project/{id}")
-    private ResponseEntity<List<ProjectSpend>> findByProject(@PathVariable long id) {
+    public ResponseEntity<List<ProjectSpend>> findByProject(@PathVariable long id) {
         return ResponseEntity.ok(
                 service.findByProject(id)
         );
     }
 
     @GetMapping("/{id}")
-    private ResponseEntity<ProjectSpend> findById(@PathVariable long id) {
+    public ResponseEntity<ProjectSpend> findById(@PathVariable long id) {
         return ResponseEntity.ok(
                 service.findById(id)
         );
     }
 
     @PostMapping
-    private ResponseEntity<ProjectSpend> createNew(@RequestBody @Valid CreateProjectSpendDTO dto) {
+    public ResponseEntity<ProjectSpend> createNew(@RequestBody @Valid CreateProjectSpendDTO dto) {
         final ProjectSpend projectSpend = service.createNew(dto);
 
         final URI uri = URI.create("/project-spend/" + projectSpend.getId());
@@ -47,14 +47,14 @@ public class ProjectSpendController {
     }
 
     @PutMapping("/{id}")
-    private ResponseEntity<ProjectSpend> edit(@PathVariable long id, @RequestBody @Valid EditProjectSpendDTO dto) {
+    public ResponseEntity<ProjectSpend> edit(@PathVariable long id, @RequestBody @Valid EditProjectSpendDTO dto) {
         return ResponseEntity.ok(
                 service.edit(id, dto)
         );
     }
 
     @DeleteMapping("/{id}")
-    private ResponseEntity<Void> delete(@PathVariable long id) {
+    public ResponseEntity<Void> delete(@PathVariable long id) {
         service.delete(id);
         return ResponseEntity.ok().build();
     }

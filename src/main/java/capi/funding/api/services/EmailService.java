@@ -21,7 +21,7 @@ public class EmailService {
         final MimeMessage message = javaMailSender.createMimeMessage();
         final MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
-        helper.setTo(email.addressee());
+        helper.setTo(email.address());
         helper.setSubject(email.subject());
         helper.setText(email.content(), true);
 

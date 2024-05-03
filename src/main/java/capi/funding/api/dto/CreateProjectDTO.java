@@ -1,6 +1,6 @@
 package capi.funding.api.dto;
 
-import capi.funding.api.models.Project;
+import capi.funding.api.entity.Project;
 import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
@@ -24,14 +24,13 @@ public record CreateProjectDTO(
         @Max(value = 7, message = "The status ID must be valid")
         long status_id,
 
-        @NotNull
-        boolean need_to_follow_order,
+        Boolean need_to_follow_order,
 
         @FutureOrPresent
         LocalDate initial_date,
 
         @NotNull
-        @FutureOrPresent
+        @Future
         LocalDate final_date
 ) {
     public Project toProject() {

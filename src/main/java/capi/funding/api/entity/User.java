@@ -1,6 +1,7 @@
-package capi.funding.api.models;
+package capi.funding.api.entity;
 
 import capi.funding.api.dto.CreateUserDTO;
+import capi.funding.api.dto.EditUserDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -58,6 +59,10 @@ public class User implements UserDetails {
         this.name = dto.name();
         this.active = false;
         this.creation_date = LocalDateTime.now();
+    }
+
+    public void updateValues(EditUserDTO dto) {
+        this.name = dto.name();
     }
 
     @Override

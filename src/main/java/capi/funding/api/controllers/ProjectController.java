@@ -3,7 +3,7 @@ package capi.funding.api.controllers;
 import capi.funding.api.dto.CreateProjectDTO;
 import capi.funding.api.dto.EditProjectDTO;
 import capi.funding.api.dto.InterfacesSQL;
-import capi.funding.api.models.Project;
+import capi.funding.api.entity.Project;
 import capi.funding.api.services.ProjectService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;

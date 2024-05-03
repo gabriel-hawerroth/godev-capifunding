@@ -1,4 +1,4 @@
-package capi.funding.api.exceptions;
+package capi.funding.api.infra.exceptions;
 
 public class DataIntegrityException extends RuntimeException {
     public DataIntegrityException() {

@@ -2,31 +2,36 @@ package capi.funding.api.services;
 
 import capi.funding.api.dto.CreateProjectSpendDTO;
 import capi.funding.api.dto.EditProjectSpendDTO;
-import capi.funding.api.exceptions.NotFoundException;
-import capi.funding.api.models.Project;
-import capi.funding.api.models.ProjectSpend;
+import capi.funding.api.entity.Project;
+import capi.funding.api.entity.ProjectSpend;
+import capi.funding.api.infra.exceptions.NotFoundException;
 import capi.funding.api.repository.ProjectSpendRepository;
+import capi.funding.api.utils.Utils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static capi.funding.api.utils.ProjectUtils.checkProjectEditability;
 
 @Service
 public class ProjectSpendService {
 
     private static final String NOT_FOUND_MESSAGE = "project spend not found";
 
-    private final UtilsService utilsService;
+    private final Utils utils;
     private final ProjectService projectService;
 
     private final ProjectSpendRepository repository;
 
-    public ProjectSpendService(UtilsService utilsService, ProjectService projectService, ProjectSpendRepository repository) {
-        this.utilsService = utilsService;
+    public ProjectSpendService(Utils utils, ProjectService projectService, ProjectSpendRepository repository) {
+        this.utils = utils;
         this.projectService = projectService;
         this.repository = repository;
     }
 
     public List<ProjectSpend> findByProject(long projectId) {
+        projectService.findById(projectId);
+
         return repository.findByProject(projectId);
     }
 
@@ -38,6 +43,9 @@ public class ProjectSpendService {
     public ProjectSpend createNew(CreateProjectSpendDTO dto) {
         final ProjectSpend projectSpend = dto.toProjectSpend();
 
+        final Project project = projectService.findById(projectSpend.getProject_id());
+        checkProjectEditability(project);
+
         return repository.save(projectSpend);
     }
 
@@ -46,7 +54,8 @@ public class ProjectSpendService {
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_MESSAGE));
 
         final Project project = projectService.findById(projectSpend.getProject_id());
-        utilsService.checkPermission(project.getCreator_id());
+        utils.checkPermission(project.getCreator_id());
+        checkProjectEditability(project);
 
         projectSpend.updateValues(dto);
 
@@ -58,7 +67,8 @@ public class ProjectSpendService {
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_MESSAGE));
 
         final Project project = projectService.findById(projectSpend.getProject_id());
-        utilsService.checkPermission(project.getCreator_id());
+        utils.checkPermission(project.getCreator_id());
+        checkProjectEditability(project);
 
         repository.deleteById(id);
     }

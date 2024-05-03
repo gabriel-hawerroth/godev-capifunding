@@ -1,9 +1,9 @@
-package capi.funding.api.services;
+package capi.funding.api.utils;
 
-import capi.funding.api.exceptions.InvalidFileException;
-import capi.funding.api.exceptions.InvalidParametersException;
-import capi.funding.api.exceptions.WithoutPermissionException;
-import capi.funding.api.models.User;
+import capi.funding.api.entity.User;
+import capi.funding.api.infra.exceptions.InvalidFileException;
+import capi.funding.api.infra.exceptions.InvalidParametersException;
+import capi.funding.api.infra.exceptions.WithoutPermissionException;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,7 +19,7 @@ import java.util.Objects;
 import java.util.logging.Logger;
 
 @Service
-public class UtilsService {
+public class Utils {
 
     private static final List<String> VALID_EXTENSIONS =
             Arrays.asList("jpg", "jpeg", "png", "jfif", "webp");

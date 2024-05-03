@@ -1,8 +1,8 @@
 package capi.funding.api.controllers;
 
+import capi.funding.api.dto.EditUserDTO;
 import capi.funding.api.dto.NewPasswordDTO;
-import capi.funding.api.dto.UserEditDTO;
-import capi.funding.api.models.User;
+import capi.funding.api.entity.User;
 import capi.funding.api.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -20,35 +20,35 @@ public class UserController {
     }
 
     @GetMapping("/get-token-user")
-    private ResponseEntity<User> getTokenUser() {
+    public ResponseEntity<User> getTokenUser() {
         return ResponseEntity.ok(
                 service.getTokenUser()
         );
     }
 
     @PutMapping("/change-password")
-    private ResponseEntity<User> changePassword(@RequestParam @Valid NewPasswordDTO newPassword) {
+    public ResponseEntity<User> changePassword(@RequestParam @Valid NewPasswordDTO newPassword) {
         return ResponseEntity.ok(
                 service.changePassword(newPassword)
         );
     }
 
-    @PutMapping("/{id}")
-    private ResponseEntity<User> editUser(@RequestBody @Valid UserEditDTO userEditDTO) {
+    @PutMapping
+    public ResponseEntity<User> editUser(@RequestBody @Valid EditUserDTO editUserDTO) {
         return ResponseEntity.ok(
-                service.editUser(userEditDTO)
+                service.editUser(editUserDTO)
         );
     }
 
     @PatchMapping("/change-image")
-    private ResponseEntity<User> changeProfileImage(@RequestParam MultipartFile file) {
+    public ResponseEntity<User> changeProfileImage(@RequestParam MultipartFile file) {
         return ResponseEntity.ok(
                 service.changeProfileImage(file)
         );
     }
 
     @PatchMapping("/remove-image")
-    private ResponseEntity<User> removeProfileImage() {
+    public ResponseEntity<User> removeProfileImage() {
         return ResponseEntity.ok(
                 service.removeProfileImage()
         );

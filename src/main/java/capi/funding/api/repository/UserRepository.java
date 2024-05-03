@@ -1,6 +1,6 @@
 package capi.funding.api.repository;
 
-import capi.funding.api.models.User;
+import capi.funding.api.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
