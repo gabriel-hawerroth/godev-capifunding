@@ -1,22 +1,64 @@
 package capi.funding.api.utils;
 
 import capi.funding.api.entity.Project;
+import capi.funding.api.entity.ProjectMilestone;
 import capi.funding.api.enums.ProjectStatusEnum;
+import capi.funding.api.infra.exceptions.InvalidParametersException;
+import capi.funding.api.infra.exceptions.MilestoneSequenceException;
 import capi.funding.api.infra.exceptions.ProjectEditabilityException;
+import capi.funding.api.services.ProjectMilestoneService;
 import lombok.NonNull;
+import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
+
+@Service
 public class ProjectUtils {
 
-    private ProjectUtils() {
+    private final ProjectMilestoneService projectMilestoneService;
+
+    public ProjectUtils(ProjectMilestoneService projectMilestoneService) {
+        this.projectMilestoneService = projectMilestoneService;
     }
 
-    public static void checkProjectEditability(@NonNull Project project) {
+    public void checkProjectEditability(@NonNull Project project) {
         final long projectStatusId = project.getStatus_id();
 
         if (projectStatusId == ProjectStatusEnum.DONE.getValue()) {
             throw new ProjectEditabilityException("this project has already been concluded and cannot be edited");
         } else if (projectStatusId == ProjectStatusEnum.CANCELED.getValue()) {
             throw new ProjectEditabilityException("this project has already been cancelled and cannot be edited");
+        }
+    }
+
+    public void validateMilestoneSequenceNumber(Integer sequence, @NonNull ProjectMilestone milestone) {
+        if (sequence == null && milestone.getId() != null) return;
+
+        if (sequence == null) {
+            milestone.setSequence(
+                    projectMilestoneService.findLastProjectSequence(milestone.getProject_id())
+                            .orElse(1)
+            );
+        } else {
+            Optional<ProjectMilestone> milestoneOptional = projectMilestoneService.findByProjectAndSequence(
+                    milestone.getProject_id(), milestone.getSequence(), milestone.getId()
+            );
+
+            if (milestoneOptional.isPresent()) {
+                throw new InvalidParametersException("this sequence number already exists in this project");
+            }
+        }
+    }
+
+    public void validateNeedToFollowOrder(@NonNull Project project, @NonNull ProjectMilestone milestone) {
+        if (project.isNeed_to_follow_order() && milestone.isCompleted()) {
+            final List<ProjectMilestone> projectMilestoneList = projectMilestoneService
+                    .findByProjectAndMinorSequence(milestone.getProject_id(), milestone.getSequence());
+
+            if (!projectMilestoneList.isEmpty()) {
+                throw new MilestoneSequenceException("the milestones of this project need to be completed in the sequence");
+            }
         }
     }
 }

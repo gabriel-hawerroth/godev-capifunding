@@ -6,11 +6,10 @@ import capi.funding.api.entity.Project;
 import capi.funding.api.entity.ProjectMilestone;
 import capi.funding.api.infra.exceptions.DataIntegrityException;
 import capi.funding.api.infra.exceptions.InvalidParametersException;
-import capi.funding.api.infra.exceptions.MilestoneSequenceException;
 import capi.funding.api.infra.exceptions.NotFoundException;
 import capi.funding.api.repository.ProjectMilestoneRepository;
+import capi.funding.api.utils.ProjectUtils;
 import capi.funding.api.utils.Utils;
-import lombok.NonNull;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -18,73 +17,75 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
-import static capi.funding.api.utils.ProjectUtils.checkProjectEditability;
-
 @Service
 public class ProjectMilestoneService {
 
-    private static final String NOT_FOUND_MESSAGE = "project milestone not found";
-
     private final Utils utils;
+    private final ProjectUtils projectUtils;
     private final ProjectService projectService;
 
     private final ProjectMilestoneRepository repository;
 
     @Lazy
-    public ProjectMilestoneService(Utils utils, ProjectService projectService, ProjectMilestoneRepository repository) {
+    public ProjectMilestoneService(Utils utils, ProjectUtils projectUtils, ProjectService projectService, ProjectMilestoneRepository repository) {
         this.utils = utils;
+        this.projectUtils = projectUtils;
         this.projectService = projectService;
         this.repository = repository;
     }
 
     public List<ProjectMilestone> findByProject(long projectId) {
-        projectService.findById(projectId);
+        if (!projectService.existsById(projectId)) {
+            throw new InvalidParametersException("project doesn't exists");
+        }
 
         return repository.findByProject(projectId);
     }
 
     public ProjectMilestone findById(long id) {
+        if (id < 1) {
+            throw new InvalidParametersException("id must be valid");
+        }
+
         return repository.findById(id)
-                .orElseThrow(() -> new NotFoundException(NOT_FOUND_MESSAGE));
+                .orElseThrow(() -> new NotFoundException("project milestone not found"));
     }
 
     public ProjectMilestone createNew(CreateProjectMilestoneDTO dto) {
         final ProjectMilestone milestone = dto.toMilestone();
 
-        validateSequenceNumber(dto.sequence(), milestone);
+        projectUtils.validateMilestoneSequenceNumber(dto.sequence(), milestone);
 
         final Project project = projectService.findById(milestone.getProject_id());
-        checkProjectEditability(project);
-        validateNeedToFollowOrder(project, milestone);
+        projectUtils.checkProjectEditability(project);
+        projectUtils.validateNeedToFollowOrder(project, milestone);
 
         return repository.save(milestone);
     }
 
     public ProjectMilestone edit(long milestoneId, EditProjectMilestoneDTO dto) {
-        final ProjectMilestone milestone = repository.findById(milestoneId)
-                .orElseThrow(() -> new NotFoundException(NOT_FOUND_MESSAGE));
+        final ProjectMilestone milestone = findById(milestoneId);
 
         final Project project = projectService.findById(milestone.getProject_id());
         utils.checkPermission(project.getCreator_id());
 
-        checkProjectEditability(project);
+        projectUtils.checkProjectEditability(project);
 
         milestone.updateValues(dto);
 
-        validateSequenceNumber(dto.sequence(), milestone);
-        validateNeedToFollowOrder(project, milestone);
+        projectUtils.validateMilestoneSequenceNumber(dto.sequence(), milestone);
+        projectUtils.validateNeedToFollowOrder(project, milestone);
 
         return repository.save(milestone);
     }
 
     public void delete(long milestoneId) {
-        final ProjectMilestone milestone = repository.findById(milestoneId)
-                .orElseThrow(() -> new NotFoundException(NOT_FOUND_MESSAGE));
+        final ProjectMilestone milestone = findById(milestoneId);
 
         final Project project = projectService.findById(milestone.getProject_id());
         utils.checkPermission(project.getCreator_id());
 
-        checkProjectEditability(project);
+        projectUtils.checkProjectEditability(project);
 
         try {
             repository.deleteById(milestoneId);
@@ -94,54 +95,27 @@ public class ProjectMilestoneService {
     }
 
     public ProjectMilestone conclude(long milestoneId) {
-        final ProjectMilestone milestone = repository.findById(milestoneId)
-                .orElseThrow(() -> new NotFoundException(NOT_FOUND_MESSAGE));
+        final ProjectMilestone milestone = findById(milestoneId);
 
         final Project project = projectService.findById(milestone.getProject_id());
         utils.checkPermission(project.getCreator_id());
 
-        validateNeedToFollowOrder(project, milestone);
+        projectUtils.validateNeedToFollowOrder(project, milestone);
 
         milestone.setCompleted(true);
 
         return repository.save(milestone);
     }
 
-    private void validateSequenceNumber(Integer sequence, @NonNull ProjectMilestone milestone) {
-        if (milestone.getId() != null && sequence == null) return;
-
-        if (sequence == null) {
-            milestone.setSequence(
-                    repository.findLastProjectSequence(milestone.getProject_id())
-                            .orElse(1)
-            );
-        } else {
-            Optional<ProjectMilestone> milestoneOptional = repository.findByProjectAndSequence(
-                    milestone.getProject_id(), milestone.getSequence(), milestone.getId()
-            );
-
-            if (milestoneOptional.isPresent()) {
-                throw new InvalidParametersException("this sequence number already exists in this project");
-            }
-        }
+    public Optional<Integer> findLastProjectSequence(long projectId) {
+        return repository.findLastProjectSequence(projectId);
     }
 
-    private void validateNeedToFollowOrder(@NonNull Project project, @NonNull ProjectMilestone milestone) {
-        if (project.isNeed_to_follow_order() && milestone.isCompleted()) {
-            final List<ProjectMilestone> projectMilestoneList = repository
-                    .findByProjectAndMinorSequence(milestone.getProject_id(), milestone.getSequence());
-
-            if (!projectMilestoneList.isEmpty()) {
-                throw new MilestoneSequenceException("the milestones of this project need to be completed in the sequence");
-            }
-        }
+    public Optional<ProjectMilestone> findByProjectAndSequence(long projectId, int sequence, Long id) {
+        return repository.findByProjectAndSequence(projectId, sequence, id);
     }
 
-    public List<ProjectMilestone> findByProjectAndCompleted(long projectId) {
-        if (projectId < 1) {
-            throw new InvalidParametersException("invalid project id");
-        }
-
-        return repository.findByProjectAndCompleted(projectId);
+    public List<ProjectMilestone> findByProjectAndMinorSequence(long projectId, int sequence) {
+        return repository.findByProjectAndMinorSequence(projectId, sequence);
     }
 }

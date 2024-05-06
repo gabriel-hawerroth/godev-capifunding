@@ -20,9 +20,9 @@ public class UserController {
     }
 
     @GetMapping("/get-token-user")
-    public ResponseEntity<User> getTokenUser() {
+    public ResponseEntity<User> getAuthUser() {
         return ResponseEntity.ok(
-                service.getTokenUser()
+                service.getAuthUser()
         );
     }
 

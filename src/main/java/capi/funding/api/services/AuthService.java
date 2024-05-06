@@ -8,9 +8,7 @@ import capi.funding.api.entity.User;
 import capi.funding.api.enums.EmailType;
 import capi.funding.api.infra.exceptions.AuthException;
 import capi.funding.api.infra.exceptions.EmailSendException;
-import capi.funding.api.infra.exceptions.NotFoundException;
 import capi.funding.api.infra.exceptions.WithoutPermissionException;
-import capi.funding.api.repository.UserRepository;
 import capi.funding.api.security.TokenService;
 import jakarta.mail.AuthenticationFailedException;
 import jakarta.mail.MessagingException;
@@ -31,15 +29,14 @@ public class AuthService {
 
     private final TokenService tokenService;
     private final EmailService emailService;
+    private final UserService userService;
 
-    private final UserRepository userRepository;
-
-    public AuthService(AuthenticationManager authenticationManager, BCryptPasswordEncoder bCrypt, TokenService tokenService, EmailService emailService, UserRepository userRepository) {
+    public AuthService(AuthenticationManager authenticationManager, BCryptPasswordEncoder bCrypt, TokenService tokenService, EmailService emailService, UserService userService) {
         this.authenticationManager = authenticationManager;
         this.bCrypt = bCrypt;
         this.tokenService = tokenService;
         this.emailService = emailService;
-        this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     public LoginResponseDTO doLogin(AuthenticationDTO authDTO) {
@@ -49,9 +46,9 @@ public class AuthService {
         try {
             auth = authenticationManager.authenticate(usernamePassword);
         } catch (BadCredentialsException ex) {
-            throw new AuthException("Bad credentials");
+            throw new AuthException("bad credentials");
         } catch (DisabledException ex) {
-            throw new AuthException("Inactive user");
+            throw new AuthException("inactive user");
         }
 
         final String token = tokenService.generateToken((User) auth.getPrincipal());
@@ -64,16 +61,15 @@ public class AuthService {
 
         user.setPassword(bCrypt.encode(user.getPassword()));
 
-        user = userRepository.save(user);
+        user = userService.save(user);
 
         sendActivateAccountEmail(user.getEmail(), user.getId());
 
         return user;
     }
 
-    public void activateAccount(long userId, String token) {
-        final User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("user not found"));
+    public void activateAccount(long userId, @NonNull String token) {
+        final User user = userService.findById(userId);
 
         if (!bCrypt.matches(user.getEmail(), token)) {
             throw new WithoutPermissionException("invalid token");
@@ -81,25 +77,26 @@ public class AuthService {
 
         user.setActive(true);
 
-        userRepository.save(user);
+        userService.save(user);
     }
 
     private void sendActivateAccountEmail(@NonNull String userMail, long userId) {
         try {
             final String token = bCrypt.encode(userMail);
+            final String mailContent = emailService.buildEmailTemplate(EmailType.ACTIVATE_ACCOUNT, userId, token);
 
             emailService.sendMail(
                     new EmailDTO(
                             userMail,
                             "Ativação da conta CapiFunding",
-                            emailService.buildEmailTemplate(EmailType.ACTIVATE_ACCOUNT, userId, token)
+                            mailContent
                     )
             );
         } catch (AuthenticationFailedException authenticationFailedException) {
-            userRepository.deleteById(userId);
+            userService.deleteById(userId);
             throw new EmailSendException("failed to authenticate to email");
         } catch (MessagingException messagingException) {
-            userRepository.deleteById(userId);
+            userService.deleteById(userId);
             throw new EmailSendException("failed to send account activation email");
         }
     }

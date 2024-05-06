@@ -42,7 +42,7 @@ public interface ProjectMilestoneRepository extends JpaRepository<ProjectMilesto
             WHERE
                 pm.project_id = :projectId
                 AND pm.sequence = :sequence
-                AND pm.id <> :id
+                AND (:id is null OR pm.id <> :id)
             LIMIT 1
             """, nativeQuery = true)
     Optional<ProjectMilestone> findByProjectAndSequence(long projectId, int sequence, Long id);
@@ -58,17 +58,4 @@ public interface ProjectMilestoneRepository extends JpaRepository<ProjectMilesto
                 AND pm.completed is false
             """, nativeQuery = true)
     List<ProjectMilestone> findByProjectAndMinorSequence(long projectId, long sequence);
-
-    @Query(value = """
-            SELECT
-                *
-            FROM
-                project_milestone pm
-            WHERE
-                pm.project_id = :projectId
-                AND pm.completed is true
-            ORDER BY
-                pm.sequence ASC
-            """, nativeQuery = true)
-    List<ProjectMilestone> findByProjectAndCompleted(long projectId);
 }

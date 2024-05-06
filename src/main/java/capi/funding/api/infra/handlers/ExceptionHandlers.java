@@ -1,7 +1,8 @@
-package capi.funding.api.infra.exceptions;
+package capi.funding.api.infra.handlers;
 
 import capi.funding.api.dto.InvalidFieldsDTO;
 import capi.funding.api.dto.ResponseError;
+import capi.funding.api.infra.exceptions.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;

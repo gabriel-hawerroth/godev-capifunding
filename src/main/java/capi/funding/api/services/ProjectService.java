@@ -10,6 +10,7 @@ import capi.funding.api.infra.exceptions.InvalidParametersException;
 import capi.funding.api.infra.exceptions.MilestoneSequenceException;
 import capi.funding.api.infra.exceptions.NotFoundException;
 import capi.funding.api.repository.ProjectRepository;
+import capi.funding.api.utils.ProjectUtils;
 import capi.funding.api.utils.Utils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -19,23 +20,21 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static capi.funding.api.utils.ProjectUtils.checkProjectEditability;
-
 @Service
 public class ProjectService {
 
-    private static final String NOT_FOUND_MESSAGE = "project not found";
-
     private final Utils utils;
+    private final ProjectUtils projectUtils;
     private final ProjectMilestoneService milestoneService;
 
     private final ProjectRepository projectRepository;
 
     @Lazy
-    public ProjectService(ProjectRepository projectRepository, ProjectMilestoneService milestoneService, Utils utils) {
+    public ProjectService(ProjectRepository projectRepository, ProjectMilestoneService milestoneService, Utils utils, ProjectUtils projectUtils) {
         this.projectRepository = projectRepository;
         this.milestoneService = milestoneService;
         this.utils = utils;
+        this.projectUtils = projectUtils;
     }
 
     public List<InterfacesSQL.ProjectsList> getProjectsList() {
@@ -48,7 +47,7 @@ public class ProjectService {
         }
 
         return projectRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(NOT_FOUND_MESSAGE));
+                .orElseThrow(() -> new NotFoundException("project not found"));
     }
 
     public Project createNew(CreateProjectDTO dto) {
@@ -71,26 +70,22 @@ public class ProjectService {
     }
 
     public Project edit(long projectId, EditProjectDTO dto) {
-        final Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new NotFoundException(NOT_FOUND_MESSAGE));
+        final Project project = findById(projectId);
 
         utils.checkPermission(project.getCreator_id());
 
-        checkProjectEditability(project);
+        projectUtils.checkProjectEditability(project);
 
         project.updateValues(dto);
 
         if (project.isNeed_to_follow_order()) {
-            final List<ProjectMilestone> completedMilestones = milestoneService.findByProjectAndCompleted(projectId);
+            final List<ProjectMilestone> completedMilestones = milestoneService.findByProject(projectId);
 
             if (!completedMilestones.isEmpty()) {
-                Integer previousSequence = null;
-
-                for (ProjectMilestone milestone : completedMilestones) {
-                    if (previousSequence != null && milestone.getSequence() < previousSequence) {
+                for (int i = 0; i < completedMilestones.size(); i++) {
+                    if (i != 0 && completedMilestones.get(i).isCompleted() && !completedMilestones.get(i - 1).isCompleted()) {
                         throw new MilestoneSequenceException("there are steps that have already been completed out of order");
                     }
-                    previousSequence = milestone.getSequence();
                 }
             }
         }
@@ -99,12 +94,11 @@ public class ProjectService {
     }
 
     public Project addCoverImage(long projectId, MultipartFile file) {
-        final Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new NotFoundException(NOT_FOUND_MESSAGE));
+        final Project project = findById(projectId);
 
         utils.checkPermission(project.getCreator_id());
 
-        checkProjectEditability(project);
+        projectUtils.checkProjectEditability(project);
 
         project.setCover_image(utils.checkImageValidityAndCompress(file));
 
@@ -112,12 +106,11 @@ public class ProjectService {
     }
 
     public Project removeCoverImage(long projectId) {
-        final Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new NotFoundException(NOT_FOUND_MESSAGE));
+        final Project project = findById(projectId);
 
         utils.checkPermission(project.getCreator_id());
 
-        checkProjectEditability(project);
+        projectUtils.checkProjectEditability(project);
 
         project.setCover_image(null);
 
@@ -125,12 +118,11 @@ public class ProjectService {
     }
 
     public Project conclude(long projectId) {
-        final Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new NotFoundException(NOT_FOUND_MESSAGE));
+        final Project project = findById(projectId);
 
         utils.checkPermission(project.getCreator_id());
 
-        checkProjectEditability(project);
+        projectUtils.checkProjectEditability(project);
 
         project.setStatus_id(ProjectStatusEnum.DONE.getValue());
 
@@ -138,19 +130,18 @@ public class ProjectService {
     }
 
     public Project cancel(long projectId) {
-        final Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new NotFoundException(NOT_FOUND_MESSAGE));
+        final Project project = findById(projectId);
 
         utils.checkPermission(project.getCreator_id());
 
-        checkProjectEditability(project);
+        projectUtils.checkProjectEditability(project);
 
         project.setStatus_id(ProjectStatusEnum.CANCELED.getValue());
 
         return projectRepository.save(project);
     }
 
-    public boolean checkIfExistsById(long projectId) {
+    public boolean existsById(long projectId) {
         if (projectId < 1) {
             throw new InvalidParametersException("id must be valid");
         }

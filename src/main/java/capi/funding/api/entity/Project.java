@@ -64,7 +64,9 @@ public class Project {
         this.description = dto.description();
         this.category_id = dto.category_id();
         this.status_id = dto.status_id();
-        this.need_to_follow_order = dto.need_to_follow_order();
+        if (dto.need_to_follow_order() != null) {
+            this.need_to_follow_order = dto.need_to_follow_order();
+        }
         this.final_date = dto.final_date();
         this.initial_date = dto.initial_date();
     }

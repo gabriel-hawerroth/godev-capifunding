@@ -29,14 +29,18 @@ public class ContributionService {
     }
 
     public List<Contribution> getProjectContributions(long projectId) {
-        if (!projectService.checkIfExistsById(projectId)) {
-            throw new InvalidParametersException("project doesnt exists");
+        if (!projectService.existsById(projectId)) {
+            throw new InvalidParametersException("project doesn't exists");
         }
 
         return contributionRepository.getProjectContributions(projectId);
     }
 
     public Contribution findById(long id) {
+        if (id < 1) {
+            throw new InvalidParametersException("id must be valid");
+        }
+
         return contributionRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("contribution not found"));
     }

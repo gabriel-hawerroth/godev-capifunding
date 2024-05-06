@@ -3,31 +3,48 @@ package capi.funding.api.services;
 import capi.funding.api.dto.EditUserDTO;
 import capi.funding.api.dto.NewPasswordDTO;
 import capi.funding.api.entity.User;
+import capi.funding.api.infra.exceptions.DataIntegrityException;
+import capi.funding.api.infra.exceptions.InvalidParametersException;
+import capi.funding.api.infra.exceptions.NotFoundException;
 import capi.funding.api.repository.UserRepository;
 import capi.funding.api.utils.Utils;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@TestInstance(Lifecycle.PER_CLASS)
+@ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
 
+    final NewPasswordDTO newPasswordDTO = new NewPasswordDTO("Gabriel#01");
+    final EditUserDTO editUserDTO = new EditUserDTO("Murilo");
+    final User user = new User(
+            1L,
+            "gabriel@gmail.com",
+            "$2a$10$WjNOD14Yf.LCe3L6gGT9IemiY.4qtxcpv4AEl8DFjxt3HmyKlPn62",
+            "Gabriel",
+            true,
+            LocalDateTime.now().minusDays(45),
+            null
+    );
+
     @InjectMocks
-    UserService service;
+    UserService userService;
     @Mock
     Utils utils;
     @Mock
@@ -35,40 +52,32 @@ public class UserServiceTest {
     @Mock
     UserRepository userRepository;
 
-    NewPasswordDTO newPasswordDTO;
-    EditUserDTO editUserDTO;
-    User user;
+    @Test
+    @DisplayName("getAuthUser - should fetch the user from the authentication context")
+    public void testGetAuthUserShouldFetchTheUserFromTheAuthenticationContext() {
+        userService.getAuthUser();
 
-    @BeforeAll
-    public void setup() {
-        newPasswordDTO = new NewPasswordDTO("Gabriel#01");
-        editUserDTO = new EditUserDTO("Gabriel");
-        user = new User(
-                1L,
-                "gabriel@gmail.com",
-                "$2a$10$WjNOD14Yf.LCe3L6gGT9IemiY.4qtxcpv4AEl8DFjxt3HmyKlPn62",
-                "Gabriel",
-                true,
-                LocalDateTime.now().minusDays(45),
-                null
-        );
+        verify(utils).getAuthUser();
     }
 
     @Test
     @DisplayName("changePassword - should fetch the user from the authentication context")
-    public void testShouldFetchTheUserFromTheAuthenticationContext() {
-        NewPasswordDTO dto = new NewPasswordDTO("Gabriel#01");
+    public void testChangePasswordShouldFetchTheUserFromTheAuthenticationContext() {
+        when(utils.getAuthUser()).thenReturn(user);
 
-        service.changePassword(dto);
+        userService.changePassword(newPasswordDTO);
 
         verify(utils).getAuthUser();
-        verifyNoInteractions(userRepository.findById(any(Long.class)));
+        verify(userRepository, never()).findById(any());
     }
 
     @Test
     @DisplayName("changePassword - should encrypt the password")
     public void testShouldEncryptThePassword() {
-        final User user = service.changePassword(newPasswordDTO);
+        when(utils.getAuthUser()).thenReturn(user);
+        when(userRepository.save(user)).thenReturn(user);
+
+        final User user = userService.changePassword(newPasswordDTO);
 
         assertNotEquals(newPasswordDTO.newPassword(), user.getPassword());
         verify(bCryptPasswordEncoder).encode(newPasswordDTO.newPassword());
@@ -76,8 +85,10 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("changePassword - should save the user")
-    public void testShouldSaveTheUser() {
-        service.changePassword(newPasswordDTO);
+    public void testChangePasswordShouldSaveTheUser() {
+        when(utils.getAuthUser()).thenReturn(user);
+
+        userService.changePassword(newPasswordDTO);
 
         verify(userRepository).save(any(User.class));
     }
@@ -85,17 +96,157 @@ public class UserServiceTest {
     @Test
     @DisplayName("editUser - should get the editing user from the authentication context")
     public void testShouldEditTheUserFromTheAuthenticationContext() {
-        service.editUser(editUserDTO);
+        when(utils.getAuthUser()).thenReturn(user);
+
+        userService.editUser(editUserDTO);
 
         verify(utils).getAuthUser();
-        verifyNoInteractions(userRepository.findById(any()));
+        verify(userRepository, never()).findById(any());
     }
 
     @Test
     @DisplayName("editUser - should update the user attributes")
     public void testShouldUpdateTheUserAttributes() {
-        final User user = service.editUser(editUserDTO);
+        when(utils.getAuthUser()).thenReturn(user);
+        when(userRepository.save(user)).thenReturn(user);
 
+        final User user = userService.editUser(editUserDTO);
+
+        verify(userRepository).save(user);
         assertEquals(user.getName(), editUserDTO.name());
+    }
+
+    @Test
+    @DisplayName("changeProfileImage - should fetch the user from the authentication context")
+    public void testChangeProfileImageShouldFetchTheUserFromTheAuthenticationContext() {
+        MockMultipartFile multipartFile = new MockMultipartFile(
+                "file", "test-image.jpg", "image/jpeg", (byte[]) null
+        );
+
+        when(utils.getAuthUser()).thenReturn(user);
+
+        userService.changeProfileImage(multipartFile);
+
+        verify(utils).getAuthUser();
+        verify(userRepository, never()).findById(any());
+    }
+
+    @Test
+    @DisplayName("changeProfileImage - should save the user")
+    public void testChangeProfileImageShouldSaveTheUser() {
+        MockMultipartFile multipartFile = new MockMultipartFile(
+                "file", "test-image.jpg", "image/jpeg", (byte[]) null
+        );
+
+        when(utils.getAuthUser()).thenReturn(user);
+
+        userService.changeProfileImage(multipartFile);
+
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    @DisplayName("removeProfileImage - should fetch the user from the authentication context")
+    public void testRemoveProfileImageShouldFetchTheUserFromTheAuthenticationContext() {
+        when(utils.getAuthUser()).thenReturn(user);
+        when(userRepository.save(user)).thenReturn(user);
+
+        userService.removeProfileImage();
+
+        verify(utils).getAuthUser();
+        verify(userRepository, never()).findById(any());
+    }
+
+    @Test
+    @DisplayName("removeProfileImage - should set user profile image to null")
+    public void testRemoveProfileImageShouldSetUserProfileImageToNull() {
+        when(utils.getAuthUser()).thenReturn(user);
+        when(userRepository.save(user)).thenReturn(user);
+
+        final User user = userService.removeProfileImage();
+
+        assertNull(user.getProfile_image());
+    }
+
+    @DisplayName("findById - should accept just positive numbers")
+    @ParameterizedTest
+    @CsvSource({
+            "0",
+            "-25"
+    })
+    public void testFindByIdShouldAcceptJustPositiveNumbers(long id) {
+        final InvalidParametersException exception = assertThrows(InvalidParametersException.class, () ->
+                userService.findById(id));
+
+        assertEquals("id must be valid", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("findById - should throw NotFoundException when project is not found")
+    public void testShouldThrowNotFoundExceptionWhenProjectIsNotFound() {
+        final long userId = 1;
+
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        final NotFoundException exception = assertThrows(NotFoundException.class, () ->
+                userService.findById(userId));
+
+        assertEquals("user not found", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("save - should validate the object")
+    public void testSaveShouldValidateTheObject() {
+        final User user = new User();
+
+        userService.save(user);
+
+        verify(utils).validateObject(user);
+    }
+
+    @Test
+    @DisplayName("save - should save the user")
+    public void testSaveShouldSaveTheUser() {
+        final User user = new User();
+
+        userService.save(user);
+
+        verify(userRepository).save(user);
+    }
+
+    @DisplayName("deleteById - should accept just positive numbers")
+    @ParameterizedTest
+    @CsvSource({
+            "0",
+            "-25"
+    })
+    public void testDeleteByIdShouldAcceptJustPositiveNumbers(long id) {
+        final InvalidParametersException exception = assertThrows(InvalidParametersException.class, () ->
+                userService.deleteById(id));
+
+        assertEquals("id must be valid", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("deleteById - should delete the user")
+    public void testDeleteByIdShouldDeleteTheUser() {
+        final long userId = 1;
+
+        userService.deleteById(userId);
+
+        verify(userRepository).deleteById(userId);
+    }
+
+    @Test
+    @DisplayName("deleteById - should throw DataIntegrityException when has linked registers")
+    public void testShouldThrowDataIntegrityExceptionWhenHasLinkedRegisters() {
+        final long userId = 1;
+
+        doThrow(DataIntegrityViolationException.class).when(userRepository).deleteById(userId);
+
+        final DataIntegrityException exception = assertThrows(DataIntegrityException.class, () ->
+                userService.deleteById(userId));
+
+        assertEquals("this user has linked registers, impossible to exclude", exception.getMessage());
     }
 }
