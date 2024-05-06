@@ -2,7 +2,7 @@ package capi.funding.api.controllers;
 
 import capi.funding.api.dto.CreateProjectDTO;
 import capi.funding.api.dto.EditProjectDTO;
-import capi.funding.api.dto.InterfacesSQL;
+import capi.funding.api.dto.ProjectsListDTO;
 import capi.funding.api.entity.Project;
 import capi.funding.api.services.ProjectService;
 import jakarta.validation.Valid;
@@ -24,7 +24,7 @@ public class ProjectController {
     }
 
     @GetMapping
-    public ResponseEntity<List<InterfacesSQL.ProjectsList>> getProjectsList() {
+    public ResponseEntity<List<ProjectsListDTO>> getProjectsList() {
         return ResponseEntity.ok(
                 projectService.getProjectsList()
         );

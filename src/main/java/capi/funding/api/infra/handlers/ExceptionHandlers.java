@@ -16,7 +16,7 @@ public class ExceptionHandlers {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ResponseError> exception(Exception ex) {
-        return ResponseEntity.badRequest().body(
+        return ResponseEntity.internalServerError().body(
                 new ResponseError(ex.getMessage())
         );
     }
@@ -59,7 +59,7 @@ public class ExceptionHandlers {
     }
 
     @ExceptionHandler(TokenGenerateException.class)
-    public ResponseEntity<ResponseError> tokenCreationException(TokenGenerateException ex) {
+    public ResponseEntity<ResponseError> tokenGenerateException(TokenGenerateException ex) {
         return ResponseEntity.internalServerError().body(
                 new ResponseError(ex.getMessage())
         );
@@ -73,14 +73,14 @@ public class ExceptionHandlers {
     }
 
     @ExceptionHandler(EmailSendException.class)
-    public ResponseEntity<ResponseError> unsendedEmailException(EmailSendException ex) {
-        return ResponseEntity.badRequest().body(
+    public ResponseEntity<ResponseError> emailSendException(EmailSendException ex) {
+        return ResponseEntity.internalServerError().body(
                 new ResponseError(ex.getMessage())
         );
     }
 
     @ExceptionHandler(MilestoneSequenceException.class)
-    public ResponseEntity<ResponseError> needToFollowOrderException(MilestoneSequenceException ex) {
+    public ResponseEntity<ResponseError> milestoneSequenceException(MilestoneSequenceException ex) {
         return ResponseEntity.badRequest().body(
                 new ResponseError(ex.getMessage())
         );

@@ -28,12 +28,12 @@ public class ContributionService {
         this.contributionRepository = contributionRepository;
     }
 
-    public List<Contribution> getProjectContributions(long projectId) {
+    public List<Contribution> findByProject(long projectId) {
         if (!projectService.existsById(projectId)) {
             throw new InvalidParametersException("project doesn't exists");
         }
 
-        return contributionRepository.getProjectContributions(projectId);
+        return contributionRepository.findByProject(projectId);
     }
 
     public Contribution findById(long id) {

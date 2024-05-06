@@ -2,7 +2,7 @@ package capi.funding.api.services;
 
 import capi.funding.api.dto.CreateProjectDTO;
 import capi.funding.api.dto.EditProjectDTO;
-import capi.funding.api.dto.InterfacesSQL;
+import capi.funding.api.dto.ProjectsListDTO;
 import capi.funding.api.entity.Project;
 import capi.funding.api.entity.ProjectMilestone;
 import capi.funding.api.enums.ProjectStatusEnum;
@@ -37,7 +37,7 @@ public class ProjectService {
         this.projectUtils = projectUtils;
     }
 
-    public List<InterfacesSQL.ProjectsList> getProjectsList() {
+    public List<ProjectsListDTO> getProjectsList() {
         return projectRepository.getProjectsList();
     }
 

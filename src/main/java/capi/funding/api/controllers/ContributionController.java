@@ -21,9 +21,9 @@ public class ContributionController {
     }
 
     @GetMapping("/project/{id}")
-    public ResponseEntity<List<Contribution>> getProjectContributions(@PathVariable long id) {
+    public ResponseEntity<List<Contribution>> findByProject(@PathVariable long id) {
         return ResponseEntity.ok(
-                contributionService.getProjectContributions(id)
+                contributionService.findByProject(id)
         );
     }
 

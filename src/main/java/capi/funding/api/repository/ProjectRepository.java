@@ -1,6 +1,6 @@
 package capi.funding.api.repository;
 
-import capi.funding.api.dto.InterfacesSQL;
+import capi.funding.api.dto.ProjectsListDTO;
 import capi.funding.api.entity.Project;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -23,7 +23,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
                 project p
                 JOIN users u ON p.creator_id = u.id
             """, nativeQuery = true)
-    List<InterfacesSQL.ProjectsList> getProjectsList();
+    List<ProjectsListDTO> getProjectsList();
 
     @Query(value = """
             SELECT

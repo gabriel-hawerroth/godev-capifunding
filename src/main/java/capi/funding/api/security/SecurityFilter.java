@@ -3,10 +3,12 @@ package capi.funding.api.security;
 import capi.funding.api.entity.User;
 import capi.funding.api.infra.exceptions.NotFoundException;
 import capi.funding.api.repository.UserRepository;
+import capi.funding.api.utils.Utils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.Getter;
 import lombok.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,13 +22,15 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class SecurityFilter extends OncePerRequestFilter {
 
-    public final Map<String, User> usersCache = new ConcurrentHashMap<>();
+    @Getter
+    private final Map<String, User> usersCache = new ConcurrentHashMap<>();
 
+    private final Utils utils;
     private final TokenService tokenService;
-
     private final UserRepository userRepository;
 
-    public SecurityFilter(TokenService tokenService, UserRepository userRepository) {
+    public SecurityFilter(Utils utils, TokenService tokenService, UserRepository userRepository) {
+        this.utils = utils;
         this.tokenService = tokenService;
         this.userRepository = userRepository;
     }
@@ -64,5 +68,14 @@ public class SecurityFilter extends OncePerRequestFilter {
         }
 
         return user;
+    }
+
+    public void addUserCache(User user) {
+        utils.validateObject(user);
+        this.usersCache.put(user.getEmail(), user);
+    }
+
+    public void clearUsersCache() {
+        usersCache.clear();
     }
 }

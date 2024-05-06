@@ -17,12 +17,12 @@ public class Schedule {
         this.projectService = projectService;
     }
 
-    @Scheduled(cron = "0 30 3 * * *") // every day at 03:30AM
+    @Scheduled(cron = "0 30 03 * * *") // every day at 03:30AM
     public void clearUsersCache() {
-        securityFilter.usersCache.clear();
+        securityFilter.clearUsersCache();
     }
 
-    @Scheduled(cron = "0 1 0 * * *") // every day at 00:01AM
+    @Scheduled(cron = "0 01 0 * * *") // every day at 00:01AM
     public void concludeAllProjectsEndingYesterdayNotCancelled() {
         projectService.concludeAllProjectsEndingYesterdayNotCancelled();
     }

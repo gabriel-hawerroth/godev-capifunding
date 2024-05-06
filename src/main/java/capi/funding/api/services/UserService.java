@@ -65,7 +65,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    User findById(long id) {
+    protected User findById(long id) {
         if (id < 1) {
             throw new InvalidParametersException("id must be valid");
         }
@@ -74,13 +74,13 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException("user not found"));
     }
 
-    User save(User user) {
+    protected User save(User user) {
         utils.validateObject(user);
 
         return userRepository.save(user);
     }
 
-    void deleteById(long id) {
+    protected void deleteById(long id) {
         if (id < 1) {
             throw new InvalidParametersException("id must be valid");
         }

@@ -146,8 +146,8 @@ public class ProjectMilestoneServiceTest {
         milestoneService.createNew(createProjectMilestoneDTO);
 
         verify(projectUtils).validateMilestoneSequenceNumber(
-                createProjectMilestoneDTO.sequence(),
-                createProjectMilestoneDTO.toMilestone()
+                anyInt(),
+                any(ProjectMilestone.class)
         );
     }
 
@@ -173,8 +173,8 @@ public class ProjectMilestoneServiceTest {
         milestoneService.createNew(createProjectMilestoneDTO);
 
         verify(projectUtils).validateNeedToFollowOrder(
-                project,
-                createProjectMilestoneDTO.toMilestone()
+                any(Project.class),
+                any(ProjectMilestone.class)
         );
     }
 
@@ -183,7 +183,9 @@ public class ProjectMilestoneServiceTest {
     public void testShouldSaveTheProjectMilestone() {
         milestoneService.createNew(createProjectMilestoneDTO);
 
-        verify(repository).save(createProjectMilestoneDTO.toMilestone());
+        verify(repository).save(milestoneCaptor.capture());
+
+        assertEquals("project milestone title", milestoneCaptor.getValue().getTitle());
     }
 
     @Test
@@ -237,14 +239,19 @@ public class ProjectMilestoneServiceTest {
     }
 
     @Test
-    @DisplayName("edit - should save the project milestone")
+    @DisplayName("edit - should save the updated project milestone")
     public void testEditShouldSaveTheProjectMilestone() {
+        project.setTitle("milestone title");
+
         when(repository.findById(milestoneId)).thenReturn(Optional.of(projectMilestone));
         when(projectService.findById(projectId)).thenReturn(project);
 
         milestoneService.edit(milestoneId, editProjectMilestoneDTO);
 
         verify(repository).save(projectMilestone);
+        verify(repository).save(milestoneCaptor.capture());
+
+        assertEquals("new title", milestoneCaptor.getValue().getTitle());
     }
 
     @Test

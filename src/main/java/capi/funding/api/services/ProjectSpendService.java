@@ -30,7 +30,9 @@ public class ProjectSpendService {
     }
 
     public List<ProjectSpend> findByProject(long projectId) {
-        projectService.findById(projectId);
+        if (!projectService.existsById(projectId)) {
+            throw new InvalidParametersException("project doesn't exists");
+        }
 
         return repository.findByProject(projectId);
     }
