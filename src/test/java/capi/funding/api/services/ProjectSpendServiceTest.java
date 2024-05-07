@@ -34,12 +34,12 @@ import static org.mockito.Mockito.*;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class ProjectSpendServiceTest {
+class ProjectSpendServiceTest {
 
-    final long spendId = 1;
-    final long projectId = 1;
+    private final long spendId = 1;
+    private final long projectId = 1;
 
-    final CreateProjectSpendDTO createProjectMilestoneDTO = new CreateProjectSpendDTO(
+    private final CreateProjectSpendDTO createProjectMilestoneDTO = new CreateProjectSpendDTO(
             1,
             1L,
             "spend description",
@@ -47,14 +47,14 @@ public class ProjectSpendServiceTest {
             LocalDate.now().minusDays(12)
     );
 
-    final EditProjectSpendDTO editProjectSpendDTO = new EditProjectSpendDTO(
+    private final EditProjectSpendDTO editProjectSpendDTO = new EditProjectSpendDTO(
             null,
             "new description",
             BigDecimal.valueOf(940),
             LocalDate.now().minusDays(4)
     );
 
-    final ProjectSpend projectSpend = new ProjectSpend(
+    private final ProjectSpend projectSpend = new ProjectSpend(
             1L,
             1,
             1L,
@@ -63,7 +63,7 @@ public class ProjectSpendServiceTest {
             LocalDate.now().minusDays(1)
     );
 
-    final Project project = new Project(
+    private final Project project = new Project(
             1L,
             "test project",
             "project description",
@@ -78,21 +78,21 @@ public class ProjectSpendServiceTest {
     );
 
     @InjectMocks
-    ProjectSpendService service;
+    private ProjectSpendService service;
     @Mock
-    Utils utils;
+    private Utils utils;
     @Mock
-    ProjectUtils projectUtils;
+    private ProjectUtils projectUtils;
     @Mock
-    ProjectService projectService;
+    private ProjectService projectService;
     @Mock
-    ProjectSpendRepository repository;
+    private ProjectSpendRepository repository;
     @Captor
-    ArgumentCaptor<ProjectSpend> spendCaptor;
+    private ArgumentCaptor<ProjectSpend> spendCaptor;
 
     @Test
     @DisplayName("findByProject - should validate that the project exists")
-    public void testShouldValidateThatTheProjectExists() {
+    void testShouldValidateThatTheProjectExists() {
         when(projectService.existsById(projectId)).thenReturn(false);
 
         final InvalidParametersException exception = assertThrows(InvalidParametersException.class, () ->
@@ -104,7 +104,7 @@ public class ProjectSpendServiceTest {
 
     @Test
     @DisplayName("findByProject - should fetch spends list from database")
-    public void testShouldFetchSpendsListFromDatabase() {
+    void testShouldFetchSpendsListFromDatabase() {
         when(projectService.existsById(projectId)).thenReturn(true);
 
         service.findByProject(projectId);
@@ -118,7 +118,7 @@ public class ProjectSpendServiceTest {
             "0",
             "-25"
     })
-    public void testFindByIdShouldAcceptJustPositiveNumbers(long id) {
+    void testFindByIdShouldAcceptJustPositiveNumbers(long id) {
         final InvalidParametersException exception = assertThrows(InvalidParametersException.class, () ->
                 service.findById(id));
 
@@ -127,7 +127,7 @@ public class ProjectSpendServiceTest {
 
     @Test
     @DisplayName("findById - should throw NotFoundException when milestone is not found")
-    public void testShouldThrowNotFoundExceptionWhenMilestoneIsNotFound() {
+    void testShouldThrowNotFoundExceptionWhenMilestoneIsNotFound() {
         when(repository.findById(projectId)).thenReturn(Optional.empty());
 
         final NotFoundException ex = assertThrows(NotFoundException.class, () ->
@@ -138,7 +138,7 @@ public class ProjectSpendServiceTest {
 
     @Test
     @DisplayName("createNew - should check project editability")
-    public void testCreateNewShouldCheckProjectEditability() {
+    void testCreateNewShouldCheckProjectEditability() {
         when(projectService.findById(projectId)).thenReturn(project);
 
         service.createNew(createProjectMilestoneDTO);
@@ -148,7 +148,7 @@ public class ProjectSpendServiceTest {
 
     @Test
     @DisplayName("createNew - should save the project spend")
-    public void testCreateNewShouldSaveTheProjectSpend() {
+    void testCreateNewShouldSaveTheProjectSpend() {
         service.createNew(createProjectMilestoneDTO);
 
         verify(repository).save(any(ProjectSpend.class));
@@ -156,7 +156,7 @@ public class ProjectSpendServiceTest {
 
     @Test
     @DisplayName("edit - should check user permission")
-    public void testEditShouldCheckUserPermission() {
+    void testEditShouldCheckUserPermission() {
         when(repository.findById(spendId)).thenReturn(Optional.of(projectSpend));
         when(projectService.findById(projectSpend.getProject_id())).thenReturn(project);
 
@@ -167,7 +167,7 @@ public class ProjectSpendServiceTest {
 
     @Test
     @DisplayName("edit - should check project editability")
-    public void testEditShouldCheckProjectEditability() {
+    void testEditShouldCheckProjectEditability() {
         when(repository.findById(spendId)).thenReturn(Optional.of(projectSpend));
         when(projectService.findById(projectSpend.getProject_id())).thenReturn(project);
 
@@ -178,7 +178,7 @@ public class ProjectSpendServiceTest {
 
     @Test
     @DisplayName("edit - should save the updated spend")
-    public void testEditShouldSaveTheUpdatedSpend() {
+    void testEditShouldSaveTheUpdatedSpend() {
         when(repository.findById(spendId)).thenReturn(Optional.of(projectSpend));
         when(projectService.findById(projectSpend.getProject_id())).thenReturn(project);
 
@@ -192,7 +192,7 @@ public class ProjectSpendServiceTest {
 
     @Test
     @DisplayName("delete - should check user permission")
-    public void testDeleteShouldCheckUserPermission() {
+    void testDeleteShouldCheckUserPermission() {
         when(repository.findById(spendId)).thenReturn(Optional.of(projectSpend));
         when(projectService.findById(projectSpend.getProject_id())).thenReturn(project);
 
@@ -203,7 +203,7 @@ public class ProjectSpendServiceTest {
 
     @Test
     @DisplayName("delete - should check project editability")
-    public void testDeleteShouldCheckProjectEditability() {
+    void testDeleteShouldCheckProjectEditability() {
         when(repository.findById(spendId)).thenReturn(Optional.of(projectSpend));
         when(projectService.findById(projectSpend.getProject_id())).thenReturn(project);
 
@@ -214,7 +214,7 @@ public class ProjectSpendServiceTest {
 
     @Test
     @DisplayName("delete - should delete from database")
-    public void testShouldDeleteFromDatabase() {
+    void testShouldDeleteFromDatabase() {
         when(repository.findById(spendId)).thenReturn(Optional.of(projectSpend));
         when(projectService.findById(projectSpend.getProject_id())).thenReturn(project);
 

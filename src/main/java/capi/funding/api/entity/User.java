@@ -34,12 +34,10 @@ public class User implements UserDetails {
     @NotBlank
     @Column(nullable = false, length = 60)
     @Size(min = 8, message = "The password must be at least 8 characters long")
-    @Pattern.List({
-            @Pattern(regexp = ".*[a-z].*", message = "The password must contain at least 1 lowercase letter"),
-            @Pattern(regexp = ".*[A-Z].*", message = "The password must contain at least 1 uppercase letter"),
-            @Pattern(regexp = ".*\\d.*", message = "The password must contain at least 1 number"),
-            @Pattern(regexp = ".*[!@#$%^&*()_+{}\\[\\]:;,.<>/?~\\\\].*", message = "The password must contain at least 1 special character")
-    })
+    @Pattern(regexp = ".*[a-z].*", message = "The password must contain at least 1 lowercase letter")
+    @Pattern(regexp = ".*[A-Z].*", message = "The password must contain at least 1 uppercase letter")
+    @Pattern(regexp = ".*\\d.*", message = "The password must contain at least 1 number")
+    @Pattern(regexp = ".*[!@#$%^&*()_+{}\\[\\]:;,.<>/?~\\\\].*", message = "The password must contain at least 1 special character")
     private String password;
 
     @NotBlank

@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class ProjectTest {
+class ProjectTest {
 
     @Test
     @DisplayName("project - no args constructor")

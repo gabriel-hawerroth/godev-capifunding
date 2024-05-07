@@ -8,7 +8,7 @@ import java.util.List;
 @Getter
 public class ValidationException extends RuntimeException {
 
-    private final List<InvalidFieldsDTO> errors;
+    private final transient List<InvalidFieldsDTO> errors;
 
     public ValidationException(List<InvalidFieldsDTO> errors) {
         this.errors = errors;

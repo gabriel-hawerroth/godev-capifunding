@@ -20,16 +20,16 @@ import static org.mockito.Mockito.when;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class UserDetailServiceTest {
+class UserDetailServiceTest {
 
     @InjectMocks
-    UserDetailService userDetailService;
+    private UserDetailService userDetailService;
     @Mock
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Test
     @DisplayName("loadUserByUsername - should fetch the user from database")
-    public void testShouldFetchTheUserFromDatabase() {
+    void testShouldFetchTheUserFromDatabase() {
         final String userMail = "test@gmail.com";
 
         when(userRepository.findByEmail(userMail)).thenReturn(Optional.of(new User()));
@@ -41,7 +41,7 @@ public class UserDetailServiceTest {
 
     @Test
     @DisplayName("loadUserByUsername - should throw AuthException when user is not found")
-    public void testShouldThrowAuthExceptionWhenUserIsNotFound() {
+    void testShouldThrowAuthExceptionWhenUserIsNotFound() {
         final String userMail = "test@gmail.com";
 
         when(userRepository.findByEmail(userMail)).thenReturn(Optional.empty());

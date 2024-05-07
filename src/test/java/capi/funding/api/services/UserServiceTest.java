@@ -29,11 +29,11 @@ import static org.mockito.Mockito.*;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class UserServiceTest {
+class UserServiceTest {
 
-    final NewPasswordDTO newPasswordDTO = new NewPasswordDTO("Gabriel#01");
-    final EditUserDTO editUserDTO = new EditUserDTO("Murilo");
-    final User user = new User(
+    private final NewPasswordDTO newPasswordDTO = new NewPasswordDTO("Gabriel#01");
+    private final EditUserDTO editUserDTO = new EditUserDTO("Murilo");
+    private final User user = new User(
             1L,
             "gabriel@gmail.com",
             "$2a$10$WjNOD14Yf.LCe3L6gGT9IemiY.4qtxcpv4AEl8DFjxt3HmyKlPn62",
@@ -44,17 +44,17 @@ public class UserServiceTest {
     );
 
     @InjectMocks
-    UserService userService;
+    private UserService userService;
     @Mock
-    Utils utils;
+    private Utils utils;
     @Mock
-    BCryptPasswordEncoder bCryptPasswordEncoder;
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
     @Mock
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Test
     @DisplayName("getAuthUser - should fetch the user from the authentication context")
-    public void testGetAuthUserShouldFetchTheUserFromTheAuthenticationContext() {
+    void testGetAuthUserShouldFetchTheUserFromTheAuthenticationContext() {
         userService.getAuthUser();
 
         verify(utils).getAuthUser();
@@ -62,7 +62,7 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("changePassword - should fetch the user from the authentication context")
-    public void testChangePasswordShouldFetchTheUserFromTheAuthenticationContext() {
+    void testChangePasswordShouldFetchTheUserFromTheAuthenticationContext() {
         when(utils.getAuthUser()).thenReturn(user);
 
         userService.changePassword(newPasswordDTO);
@@ -73,7 +73,7 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("changePassword - should encrypt the password")
-    public void testShouldEncryptThePassword() {
+    void testShouldEncryptThePassword() {
         when(utils.getAuthUser()).thenReturn(user);
         when(userRepository.save(user)).thenReturn(user);
 
@@ -85,7 +85,7 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("changePassword - should save the user")
-    public void testChangePasswordShouldSaveTheUser() {
+    void testChangePasswordShouldSaveTheUser() {
         when(utils.getAuthUser()).thenReturn(user);
 
         userService.changePassword(newPasswordDTO);
@@ -95,7 +95,7 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("editUser - should get the editing user from the authentication context")
-    public void testShouldEditTheUserFromTheAuthenticationContext() {
+    void testShouldEditTheUserFromTheAuthenticationContext() {
         when(utils.getAuthUser()).thenReturn(user);
 
         userService.editUser(editUserDTO);
@@ -106,7 +106,7 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("editUser - should update the user attributes")
-    public void testShouldUpdateTheUserAttributes() {
+    void testShouldUpdateTheUserAttributes() {
         when(utils.getAuthUser()).thenReturn(user);
         when(userRepository.save(user)).thenReturn(user);
 
@@ -118,7 +118,7 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("changeProfileImage - should fetch the user from the authentication context")
-    public void testChangeProfileImageShouldFetchTheUserFromTheAuthenticationContext() {
+    void testChangeProfileImageShouldFetchTheUserFromTheAuthenticationContext() {
         MockMultipartFile multipartFile = new MockMultipartFile(
                 "file", "test-image.jpg", "image/jpeg", (byte[]) null
         );
@@ -133,7 +133,7 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("changeProfileImage - should save the user")
-    public void testChangeProfileImageShouldSaveTheUser() {
+    void testChangeProfileImageShouldSaveTheUser() {
         MockMultipartFile multipartFile = new MockMultipartFile(
                 "file", "test-image.jpg", "image/jpeg", (byte[]) null
         );
@@ -147,7 +147,7 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("removeProfileImage - should fetch the user from the authentication context")
-    public void testRemoveProfileImageShouldFetchTheUserFromTheAuthenticationContext() {
+    void testRemoveProfileImageShouldFetchTheUserFromTheAuthenticationContext() {
         when(utils.getAuthUser()).thenReturn(user);
         when(userRepository.save(user)).thenReturn(user);
 
@@ -159,7 +159,7 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("removeProfileImage - should set user profile image to null")
-    public void testRemoveProfileImageShouldSetUserProfileImageToNull() {
+    void testRemoveProfileImageShouldSetUserProfileImageToNull() {
         when(utils.getAuthUser()).thenReturn(user);
         when(userRepository.save(user)).thenReturn(user);
 
@@ -174,7 +174,7 @@ public class UserServiceTest {
             "0",
             "-25"
     })
-    public void testFindByIdShouldAcceptJustPositiveNumbers(long id) {
+    void testFindByIdShouldAcceptJustPositiveNumbers(long id) {
         final InvalidParametersException exception = assertThrows(InvalidParametersException.class, () ->
                 userService.findById(id));
 
@@ -183,7 +183,7 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("findById - should throw NotFoundException when project is not found")
-    public void testShouldThrowNotFoundExceptionWhenProjectIsNotFound() {
+    void testShouldThrowNotFoundExceptionWhenProjectIsNotFound() {
         final long userId = 1;
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
@@ -196,7 +196,7 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("save - should validate the object")
-    public void testSaveShouldValidateTheObject() {
+    void testSaveShouldValidateTheObject() {
         final User user = new User();
 
         userService.save(user);
@@ -206,7 +206,7 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("save - should save the user")
-    public void testSaveShouldSaveTheUser() {
+    void testSaveShouldSaveTheUser() {
         final User user = new User();
 
         userService.save(user);
@@ -220,7 +220,7 @@ public class UserServiceTest {
             "0",
             "-25"
     })
-    public void testDeleteByIdShouldAcceptJustPositiveNumbers(long id) {
+    void testDeleteByIdShouldAcceptJustPositiveNumbers(long id) {
         final InvalidParametersException exception = assertThrows(InvalidParametersException.class, () ->
                 userService.deleteById(id));
 
@@ -229,7 +229,7 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("deleteById - should delete the user")
-    public void testDeleteByIdShouldDeleteTheUser() {
+    void testDeleteByIdShouldDeleteTheUser() {
         final long userId = 1;
 
         userService.deleteById(userId);
@@ -239,7 +239,7 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("deleteById - should throw DataIntegrityException when has linked registers")
-    public void testShouldThrowDataIntegrityExceptionWhenHasLinkedRegisters() {
+    void testShouldThrowDataIntegrityExceptionWhenHasLinkedRegisters() {
         final long userId = 1;
 
         doThrow(DataIntegrityViolationException.class).when(userRepository).deleteById(userId);

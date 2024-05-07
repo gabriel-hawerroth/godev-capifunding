@@ -38,9 +38,9 @@ import static org.mockito.Mockito.*;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class ProjectServiceTest {
+class ProjectServiceTest {
 
-    final Project project = new Project(
+    private final Project project = new Project(
             1L,
             "test project",
             "project description",
@@ -54,7 +54,7 @@ public class ProjectServiceTest {
             null
     );
 
-    final EditProjectDTO editProjectDTO = new EditProjectDTO(
+    private final EditProjectDTO editProjectDTO = new EditProjectDTO(
             "new title",
             "new description",
             null,
@@ -63,7 +63,7 @@ public class ProjectServiceTest {
             null
     );
 
-    final ProjectMilestone projectMilestone = new ProjectMilestone(
+    private final ProjectMilestone projectMilestone = new ProjectMilestone(
             1L,
             1,
             "project milestone title",
@@ -73,7 +73,7 @@ public class ProjectServiceTest {
             BigDecimal.valueOf(100)
     );
 
-    final User user = new User(
+    private final User user = new User(
             1L,
             "test@gmail.com",
             "Testing#01",
@@ -84,23 +84,23 @@ public class ProjectServiceTest {
     );
 
     @InjectMocks
-    ProjectService projectService;
+    private ProjectService projectService;
     @Mock
-    Utils utils;
+    private Utils utils;
     @Mock
-    ProjectUtils projectUtils;
+    private ProjectUtils projectUtils;
     @Mock
-    ProjectMilestoneService milestoneService;
+    private ProjectMilestoneService milestoneService;
     @Mock
-    ProjectRepository projectRepository;
+    private ProjectRepository projectRepository;
     @Captor
-    ArgumentCaptor<Project> projectCaptor;
+    private ArgumentCaptor<Project> projectCaptor;
     @Captor
-    ArgumentCaptor<List<Project>> projectListCaptor;
+    private ArgumentCaptor<List<Project>> projectListCaptor;
 
     @Test
     @DisplayName("getProjectsList - should fetch projects list from database")
-    public void testShouldFetchProjectsListFromDatabase() {
+    void testShouldFetchProjectsListFromDatabase() {
         projectService.getProjectsList();
 
         verify(projectRepository).getProjectsList();
@@ -112,7 +112,7 @@ public class ProjectServiceTest {
             "0",
             "-25"
     })
-    public void testFindByIdShoulAcceptJustPositiveNumbers(long id) {
+    void testFindByIdShoulAcceptJustPositiveNumbers(long id) {
         final InvalidParametersException exception = assertThrows(InvalidParametersException.class, () ->
                 projectService.findById(id));
 
@@ -121,7 +121,7 @@ public class ProjectServiceTest {
 
     @Test
     @DisplayName("findById - should throw NotFoundException when project is not found")
-    public void testShouldThrowNotFoundExceptionWhenProjectIsNotFound() {
+    void testShouldThrowNotFoundExceptionWhenProjectIsNotFound() {
         final long projectId = 1;
 
         when(projectRepository.findById(projectId)).thenReturn(Optional.empty());
@@ -134,7 +134,7 @@ public class ProjectServiceTest {
 
     @Test
     @DisplayName("createNew - if initial date is null should set to current date")
-    public void testIfInitialDateIsNullShouldSetToCurrentDate() {
+    void testIfInitialDateIsNullShouldSetToCurrentDate() {
         when(utils.getAuthUser()).thenReturn(user);
 
         final CreateProjectDTO createProjectDTO = new CreateProjectDTO(
@@ -156,7 +156,7 @@ public class ProjectServiceTest {
 
     @Test
     @DisplayName("createNew - if need_to_follow_order is null should set to false")
-    public void testIfNeedToFollowOrderIsNullShouldSetToFalse() {
+    void testIfNeedToFollowOrderIsNullShouldSetToFalse() {
         when(utils.getAuthUser()).thenReturn(user);
 
         final CreateProjectDTO createProjectDTO = new CreateProjectDTO(
@@ -178,7 +178,7 @@ public class ProjectServiceTest {
 
     @Test
     @DisplayName("createNew - should save the project")
-    public void testCreateNewShouldSaveTheProject() {
+    void testCreateNewShouldSaveTheProject() {
         when(utils.getAuthUser()).thenReturn(user);
 
         final CreateProjectDTO createProjectDTO = new CreateProjectDTO(
@@ -201,7 +201,7 @@ public class ProjectServiceTest {
 
     @Test
     @DisplayName("edit - should check user permission")
-    public void testEditShouldCheckUserPermission() {
+    void testEditShouldCheckUserPermission() {
         final long projectId = 1;
 
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
@@ -213,7 +213,7 @@ public class ProjectServiceTest {
 
     @Test
     @DisplayName("edit - should save the project")
-    public void testEditShouldSaveTheProject() {
+    void testEditShouldSaveTheProject() {
         final long projectId = 1;
 
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
@@ -225,7 +225,7 @@ public class ProjectServiceTest {
 
     @Test
     @DisplayName("edit - should do nothing when completed milestones is empty")
-    public void testShouldDoNothingWhenCompletedMilestonesIsEmpty() {
+    void testShouldDoNothingWhenCompletedMilestonesIsEmpty() {
         final long projectId = 1;
         final EditProjectDTO editProjectDTO1 = new EditProjectDTO(
                 "new title",
@@ -244,7 +244,7 @@ public class ProjectServiceTest {
 
     @Test
     @DisplayName("edit - should check project editability")
-    public void testEditShouldCheckProjectEditability() {
+    void testEditShouldCheckProjectEditability() {
         final long projectId = 1;
 
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
@@ -256,7 +256,7 @@ public class ProjectServiceTest {
 
     @Test
     @DisplayName("edit - should throw exception when setting need_to_follow_order to true and has milestones completed out of sequence")
-    public void testShouldThrowExceptionWhenSettingNeedToFollowOrderToTrueAndHasMilestonesCompletedOutOfSequence() {
+    void testShouldThrowExceptionWhenSettingNeedToFollowOrderToTrueAndHasMilestonesCompletedOutOfSequence() {
         final long projectId = 1;
 
         final ProjectMilestone milestone2 = new ProjectMilestone(
@@ -294,7 +294,7 @@ public class ProjectServiceTest {
 
     @Test
     @DisplayName("edit - should pass when setting need_to_follow_order to true and doesn't has milestones completed out of sequence")
-    public void testShouldPassWhenSettingNeedToFollowOrderToTrueAndDoesntHasMilestonesCompletedOutOfSequence() {
+    void testShouldPassWhenSettingNeedToFollowOrderToTrueAndDoesntHasMilestonesCompletedOutOfSequence() {
         final long projectId = 1;
 
         projectMilestone.setCompleted(true);
@@ -336,7 +336,7 @@ public class ProjectServiceTest {
 
     @Test
     @DisplayName("addCoverImage - should check user permission")
-    public void testAddCoverImageShouldCheckUserPermission() {
+    void testAddCoverImageShouldCheckUserPermission() {
         final long projectId = 1;
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
 
@@ -347,7 +347,7 @@ public class ProjectServiceTest {
 
     @Test
     @DisplayName("addCoverImage - should check project editability")
-    public void testAddCoverImageShouldCheckProjectEditability() {
+    void testAddCoverImageShouldCheckProjectEditability() {
         final long projectId = 1;
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
 
@@ -358,7 +358,7 @@ public class ProjectServiceTest {
 
     @Test
     @DisplayName("addCoverImage - should compress the image")
-    public void testAddCoverImageShouldCompressTheImage() {
+    void testAddCoverImageShouldCompressTheImage() {
         final long projectId = 1;
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
 
@@ -371,7 +371,7 @@ public class ProjectServiceTest {
 
     @Test
     @DisplayName("addCoverImage - should save the project")
-    public void testAddCoverImageShouldSaveTheProject() {
+    void testAddCoverImageShouldSaveTheProject() {
         final long projectId = 1;
 
         final var mockFile = mock(MockMultipartFile.class);
@@ -386,7 +386,7 @@ public class ProjectServiceTest {
 
     @Test
     @DisplayName("removeCoverImage - should check user permission")
-    public void testRemoveCoverImageShouldCheckUserPermission() {
+    void testRemoveCoverImageShouldCheckUserPermission() {
         final long projectId = 1;
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
 
@@ -397,7 +397,7 @@ public class ProjectServiceTest {
 
     @Test
     @DisplayName("removeCoverImage - should check project editability")
-    public void testRemoveCoverImageShouldCheckProjectEditability() {
+    void testRemoveCoverImageShouldCheckProjectEditability() {
         final long projectId = 1;
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
 
@@ -408,7 +408,7 @@ public class ProjectServiceTest {
 
     @Test
     @DisplayName("removeCoverImage - should set project cover_image to null and save")
-    public void testShouldSetProjectCoverImageToNullAndSave() {
+    void testShouldSetProjectCoverImageToNullAndSave() {
         final long projectId = 1;
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
 
@@ -421,7 +421,7 @@ public class ProjectServiceTest {
 
     @Test
     @DisplayName("conclude - should check user permission")
-    public void testConcludeShouldCheckUserPermission() {
+    void testConcludeShouldCheckUserPermission() {
         final long projectId = 1;
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
 
@@ -432,7 +432,7 @@ public class ProjectServiceTest {
 
     @Test
     @DisplayName("conclude - should check project editability")
-    public void testConcludeShouldCheckProjectEditability() {
+    void testConcludeShouldCheckProjectEditability() {
         final long projectId = 1;
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
 
@@ -443,7 +443,7 @@ public class ProjectServiceTest {
 
     @Test
     @DisplayName("conclude - should set status to done and save")
-    public void testShouldSetStatusToDoneAndSave() {
+    void testShouldSetStatusToDoneAndSave() {
         final long projectId = 1;
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
 
@@ -459,7 +459,7 @@ public class ProjectServiceTest {
 
     @Test
     @DisplayName("cancel - should check user permission")
-    public void testCancelShouldCheckUserPermission() {
+    void testCancelShouldCheckUserPermission() {
         final long projectId = 1;
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
 
@@ -470,7 +470,7 @@ public class ProjectServiceTest {
 
     @Test
     @DisplayName("cancel - should check project editability")
-    public void testCancelShouldCheckProjectEditability() {
+    void testCancelShouldCheckProjectEditability() {
         final long projectId = 1;
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
 
@@ -481,7 +481,7 @@ public class ProjectServiceTest {
 
     @Test
     @DisplayName("cancel - should set status to canceled and save")
-    public void testShouldSetStatusToCanceledAndSave() {
+    void testShouldSetStatusToCanceledAndSave() {
         final long projectId = 1;
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
 
@@ -501,7 +501,7 @@ public class ProjectServiceTest {
             "0",
             "-25"
     })
-    public void testExistsByIdAcceptJustPositiveNumbers(long id) {
+    void testExistsByIdAcceptJustPositiveNumbers(long id) {
         final InvalidParametersException exception = assertThrows(InvalidParametersException.class, () ->
                 projectService.existsById(id));
 
@@ -510,7 +510,7 @@ public class ProjectServiceTest {
 
     @Test
     @DisplayName("checkIfExistsById - should fetch exists by id from database")
-    public void testExistsByIdFromDatabase() {
+    void testExistsByIdFromDatabase() {
         final long id = 1;
 
         projectService.existsById(id);
@@ -520,7 +520,7 @@ public class ProjectServiceTest {
 
     @Test
     @DisplayName("concludeAllProjectsEndingYesterdayNotCancelled - should conclude the projects")
-    public void testConcludeAllProjectsEndingYesterdayNotCancelledShouldConcludeTheProjects() {
+    void testConcludeAllProjectsEndingYesterdayNotCancelledShouldConcludeTheProjects() {
         project.setStatus_id(ProjectStatusEnum.IN_PROGRESS.getValue());
         final List<Project> projects = List.of(project);
 

@@ -35,12 +35,12 @@ import static org.mockito.Mockito.*;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class ProjectMilestoneServiceTest {
+class ProjectMilestoneServiceTest {
 
-    final long milestoneId = 1;
-    final long projectId = 1;
+    private final long milestoneId = 1;
+    private final long projectId = 1;
 
-    final CreateProjectMilestoneDTO createProjectMilestoneDTO = new CreateProjectMilestoneDTO(
+    private final CreateProjectMilestoneDTO createProjectMilestoneDTO = new CreateProjectMilestoneDTO(
             1,
             "project milestone title",
             "project milestone description",
@@ -49,7 +49,7 @@ public class ProjectMilestoneServiceTest {
             BigDecimal.valueOf(100)
     );
 
-    final EditProjectMilestoneDTO editProjectMilestoneDTO = new EditProjectMilestoneDTO(
+    private final EditProjectMilestoneDTO editProjectMilestoneDTO = new EditProjectMilestoneDTO(
             "new title",
             "new description",
             2,
@@ -57,7 +57,7 @@ public class ProjectMilestoneServiceTest {
             null
     );
 
-    final ProjectMilestone projectMilestone = new ProjectMilestone(
+    private final ProjectMilestone projectMilestone = new ProjectMilestone(
             1L,
             1,
             "milestone title",
@@ -67,7 +67,7 @@ public class ProjectMilestoneServiceTest {
             BigDecimal.valueOf(100)
     );
 
-    final Project project = new Project(
+    private final Project project = new Project(
             1L,
             "test project",
             "project description",
@@ -82,21 +82,21 @@ public class ProjectMilestoneServiceTest {
     );
 
     @InjectMocks
-    ProjectMilestoneService milestoneService;
+    private ProjectMilestoneService milestoneService;
     @Mock
-    Utils utils;
+    private Utils utils;
     @Mock
-    ProjectUtils projectUtils;
+    private ProjectUtils projectUtils;
     @Mock
-    ProjectService projectService;
+    private ProjectService projectService;
     @Mock
-    ProjectMilestoneRepository repository;
+    private ProjectMilestoneRepository repository;
     @Captor
-    ArgumentCaptor<ProjectMilestone> milestoneCaptor;
+    private ArgumentCaptor<ProjectMilestone> milestoneCaptor;
 
     @Test
     @DisplayName("findByProject - should validate that the project exists")
-    public void testShouldValidateThatTheProjectExists() {
+    void testShouldValidateThatTheProjectExists() {
         when(projectService.existsById(projectId)).thenReturn(false);
 
         final InvalidParametersException exception = assertThrows(InvalidParametersException.class, () ->
@@ -108,7 +108,7 @@ public class ProjectMilestoneServiceTest {
 
     @Test
     @DisplayName("findByProject - should fetch milestones list from database")
-    public void testShouldFetchMilestonesListFromDatabase() {
+    void testShouldFetchMilestonesListFromDatabase() {
         when(projectService.existsById(projectId)).thenReturn(true);
 
         milestoneService.findByProject(projectId);
@@ -122,7 +122,7 @@ public class ProjectMilestoneServiceTest {
             "0",
             "-25"
     })
-    public void testFindByIdShouldAcceptJustPositiveNumbers(long id) {
+    void testFindByIdShouldAcceptJustPositiveNumbers(long id) {
         final InvalidParametersException exception = assertThrows(InvalidParametersException.class, () ->
                 milestoneService.findById(id));
 
@@ -131,7 +131,7 @@ public class ProjectMilestoneServiceTest {
 
     @Test
     @DisplayName("findById - should throw NotFoundException when milestone is not found")
-    public void testShouldThrowNotFoundExceptionWhenMilestoneIsNotFound() {
+    void testShouldThrowNotFoundExceptionWhenMilestoneIsNotFound() {
         when(repository.findById(projectId)).thenReturn(Optional.empty());
 
         final NotFoundException ex = assertThrows(NotFoundException.class, () ->
@@ -142,7 +142,7 @@ public class ProjectMilestoneServiceTest {
 
     @Test
     @DisplayName("createNew - should validate milestone sequence number")
-    public void testCreateNewShouldValidateMilestoneSequenceNumber() {
+    void testCreateNewShouldValidateMilestoneSequenceNumber() {
         milestoneService.createNew(createProjectMilestoneDTO);
 
         verify(projectUtils).validateMilestoneSequenceNumber(
@@ -153,7 +153,7 @@ public class ProjectMilestoneServiceTest {
 
     @Test
     @DisplayName("createNew - should check project editability")
-    public void testCreateNewShouldCheckProjectEditability() {
+    void testCreateNewShouldCheckProjectEditability() {
         final Project project = new Project();
 
         when(projectService.findById(createProjectMilestoneDTO.project_id())).thenReturn(project);
@@ -165,7 +165,7 @@ public class ProjectMilestoneServiceTest {
 
     @Test
     @DisplayName("createNew - should validate need to follow order")
-    public void testCreateNewShouldValidateNeedToFollowOrder() {
+    void testCreateNewShouldValidateNeedToFollowOrder() {
         final Project project = new Project();
 
         when(projectService.findById(createProjectMilestoneDTO.project_id())).thenReturn(project);
@@ -180,7 +180,7 @@ public class ProjectMilestoneServiceTest {
 
     @Test
     @DisplayName("createNew - should save the project milestone")
-    public void testShouldSaveTheProjectMilestone() {
+    void testShouldSaveTheProjectMilestone() {
         milestoneService.createNew(createProjectMilestoneDTO);
 
         verify(repository).save(milestoneCaptor.capture());
@@ -190,7 +190,7 @@ public class ProjectMilestoneServiceTest {
 
     @Test
     @DisplayName("edit - should check user permission")
-    public void testEditShouldCheckUserPermission() {
+    void testEditShouldCheckUserPermission() {
         when(repository.findById(milestoneId)).thenReturn(Optional.of(projectMilestone));
         when(projectService.findById(projectId)).thenReturn(project);
 
@@ -201,7 +201,7 @@ public class ProjectMilestoneServiceTest {
 
     @Test
     @DisplayName("edit - should check project editability")
-    public void testEditShouldCheckProjectEditability() {
+    void testEditShouldCheckProjectEditability() {
         when(repository.findById(milestoneId)).thenReturn(Optional.of(projectMilestone));
         when(projectService.findById(projectId)).thenReturn(project);
 
@@ -212,7 +212,7 @@ public class ProjectMilestoneServiceTest {
 
     @Test
     @DisplayName("edit - should validate milestone sequence number")
-    public void testEditShouldValidateMilestoneSequenceNumber() {
+    void testEditShouldValidateMilestoneSequenceNumber() {
         when(repository.findById(milestoneId)).thenReturn(Optional.of(projectMilestone));
         when(projectService.findById(projectId)).thenReturn(project);
 
@@ -226,7 +226,7 @@ public class ProjectMilestoneServiceTest {
 
     @Test
     @DisplayName("edit - should validate need to follow order")
-    public void testEditShouldValidateNeedToFollowOrder() {
+    void testEditShouldValidateNeedToFollowOrder() {
         when(repository.findById(milestoneId)).thenReturn(Optional.of(projectMilestone));
         when(projectService.findById(projectId)).thenReturn(project);
 
@@ -240,7 +240,7 @@ public class ProjectMilestoneServiceTest {
 
     @Test
     @DisplayName("edit - should save the updated project milestone")
-    public void testEditShouldSaveTheProjectMilestone() {
+    void testEditShouldSaveTheProjectMilestone() {
         project.setTitle("milestone title");
 
         when(repository.findById(milestoneId)).thenReturn(Optional.of(projectMilestone));
@@ -256,7 +256,7 @@ public class ProjectMilestoneServiceTest {
 
     @Test
     @DisplayName("delete - should check user permission")
-    public void testDeleteShouldCheckUserPermission() {
+    void testDeleteShouldCheckUserPermission() {
         when(repository.findById(milestoneId)).thenReturn(Optional.of(projectMilestone));
         when(projectService.findById(projectId)).thenReturn(project);
 
@@ -267,7 +267,7 @@ public class ProjectMilestoneServiceTest {
 
     @Test
     @DisplayName("delete - should check project editability")
-    public void testDeleteShouldCheckProjectEditability() {
+    void testDeleteShouldCheckProjectEditability() {
         when(repository.findById(milestoneId)).thenReturn(Optional.of(projectMilestone));
         when(projectService.findById(projectId)).thenReturn(project);
 
@@ -278,7 +278,7 @@ public class ProjectMilestoneServiceTest {
 
     @Test
     @DisplayName("delete - should throw exception when has linked registers")
-    public void testShouldThrowExceptionWhenHasLinkedRegisters() {
+    void testShouldThrowExceptionWhenHasLinkedRegisters() {
         when(repository.findById(milestoneId)).thenReturn(Optional.of(projectMilestone));
         when(projectService.findById(projectId)).thenReturn(project);
 
@@ -292,7 +292,7 @@ public class ProjectMilestoneServiceTest {
 
     @Test
     @DisplayName("conclude - should check user permission")
-    public void testConcludeShouldCheckUserPermission() {
+    void testConcludeShouldCheckUserPermission() {
         when(repository.findById(milestoneId)).thenReturn(Optional.of(projectMilestone));
         when(projectService.findById(projectId)).thenReturn(project);
 
@@ -303,7 +303,7 @@ public class ProjectMilestoneServiceTest {
 
     @Test
     @DisplayName("conclude - should validate need to follow order")
-    public void testConcludeShouldValidateNeedToFollowOrder() {
+    void testConcludeShouldValidateNeedToFollowOrder() {
         when(repository.findById(milestoneId)).thenReturn(Optional.of(projectMilestone));
         when(projectService.findById(projectId)).thenReturn(project);
 
@@ -317,7 +317,7 @@ public class ProjectMilestoneServiceTest {
 
     @Test
     @DisplayName("conclude - should save completed milestone")
-    public void testConcludeShouldSaveCompletedMilestone() {
+    void testConcludeShouldSaveCompletedMilestone() {
         when(repository.findById(milestoneId)).thenReturn(Optional.of(projectMilestone));
         when(projectService.findById(projectId)).thenReturn(project);
 
@@ -330,7 +330,7 @@ public class ProjectMilestoneServiceTest {
 
     @Test
     @DisplayName("findLastProjectSequence - should fetch from database")
-    public void testFindLastProjectSequenceShouldFetchFromDatabase() {
+    void testFindLastProjectSequenceShouldFetchFromDatabase() {
         milestoneService.findLastProjectSequence(projectId);
 
         verify(repository).findLastProjectSequence(projectId);
@@ -338,7 +338,7 @@ public class ProjectMilestoneServiceTest {
 
     @Test
     @DisplayName("findByProjectAndSequence - should fetch from database")
-    public void testFindByProjectAndSequenceShouldFetchFromDatabase() {
+    void testFindByProjectAndSequenceShouldFetchFromDatabase() {
         milestoneService.findByProjectAndSequence(projectId, projectMilestone.getSequence(), milestoneId);
 
         verify(repository).findByProjectAndSequence(projectId, projectMilestone.getSequence(), milestoneId);
@@ -346,7 +346,7 @@ public class ProjectMilestoneServiceTest {
 
     @Test
     @DisplayName("findByProjectAndMinorSequence - should fetch from database")
-    public void testFindByProjectAndMinorSequenceShouldFetchFromDatabase() {
+    void testFindByProjectAndMinorSequenceShouldFetchFromDatabase() {
         milestoneService.findByProjectAndMinorSequence(projectId, projectMilestone.getSequence());
 
         verify(repository).findByProjectAndMinorSequence(projectId, projectMilestone.getSequence());

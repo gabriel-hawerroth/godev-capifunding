@@ -33,11 +33,11 @@ import static org.mockito.Mockito.*;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class ContributionServiceTest {
+class ContributionServiceTest {
 
-    final long projectId = 1;
+    private final long projectId = 1;
 
-    final Project project = new Project(
+    private final Project project = new Project(
             1L,
             "test project",
             "project description",
@@ -51,7 +51,7 @@ public class ContributionServiceTest {
             null
     );
 
-    final User user = new User(
+    private final User user = new User(
             1L,
             "test@gmail.com",
             "encryptedPassword",
@@ -62,19 +62,19 @@ public class ContributionServiceTest {
     );
 
     @InjectMocks
-    ContributionService service;
+    private ContributionService service;
     @Mock
-    Utils utils;
+    private Utils utils;
     @Mock
-    ProjectService projectService;
+    private ProjectService projectService;
     @Mock
-    ContributionRepository repository;
+    private ContributionRepository repository;
     @Captor
-    ArgumentCaptor<Contribution> contributionCaptor;
+    private ArgumentCaptor<Contribution> contributionCaptor;
 
     @Test
     @DisplayName("findByProject - should validate that the project exists")
-    public void testShouldValidateThatTheProjectExists() {
+    void testShouldValidateThatTheProjectExists() {
         when(projectService.existsById(projectId)).thenReturn(false);
 
         final InvalidParametersException exception =
@@ -87,7 +87,7 @@ public class ContributionServiceTest {
 
     @Test
     @DisplayName("findByProject - should fetch contributions list from database")
-    public void testShouldFetchMilestonesListFromDatabase() {
+    void testShouldFetchMilestonesListFromDatabase() {
         when(projectService.existsById(projectId)).thenReturn(true);
 
         service.findByProject(projectId);
@@ -101,7 +101,7 @@ public class ContributionServiceTest {
             "0",
             "-25"
     })
-    public void testFindByIdShouldAcceptJustPositiveNumbers(long id) {
+    void testFindByIdShouldAcceptJustPositiveNumbers(long id) {
         final InvalidParametersException exception =
                 assertThrows(InvalidParametersException.class, () ->
                         service.findById(id));
@@ -111,7 +111,7 @@ public class ContributionServiceTest {
 
     @Test
     @DisplayName("findById - should throw NotFoundException when contribution is not found")
-    public void testShouldThrowNotFoundExceptionWhenContributionIsNotFound() {
+    void testShouldThrowNotFoundExceptionWhenContributionIsNotFound() {
         when(repository.findById(projectId)).thenReturn(Optional.empty());
 
         final NotFoundException ex = assertThrows(NotFoundException.class, () ->
@@ -127,7 +127,7 @@ public class ContributionServiceTest {
             "DONE",
             "CANCELED"
     })
-    public void testCreateNewShouldValidateProjectStatus(String projectStatus) {
+    void testCreateNewShouldValidateProjectStatus(String projectStatus) {
         final CreateContributionDTO createContributionDTO = new CreateContributionDTO(
                 1,
                 BigDecimal.valueOf(150)
@@ -153,7 +153,7 @@ public class ContributionServiceTest {
             "0",
             "-150"
     })
-    public void testShouldValidateMinimalContributionValue(BigDecimal contributionValue) {
+    void testShouldValidateMinimalContributionValue(BigDecimal contributionValue) {
         final CreateContributionDTO contributionDTO = new CreateContributionDTO(
                 1, contributionValue
         );
@@ -168,7 +168,7 @@ public class ContributionServiceTest {
 
     @Test
     @DisplayName("createNew - should save the new contribution")
-    public void testShouldSaveTheNewContribution() {
+    void testShouldSaveTheNewContribution() {
         final BigDecimal contributionValue = BigDecimal.valueOf(5.0);
         final CreateContributionDTO createContributionDTO = new CreateContributionDTO(
                 1, contributionValue
@@ -186,7 +186,7 @@ public class ContributionServiceTest {
 
     @Test
     @DisplayName("createNew - should set project contributor with the auth user id")
-    public void testShouldSetProjectContributorWithTheAuthUserId() {
+    void testShouldSetProjectContributorWithTheAuthUserId() {
         final CreateContributionDTO createContributionDTO = new CreateContributionDTO(
                 1, BigDecimal.valueOf(80)
         );

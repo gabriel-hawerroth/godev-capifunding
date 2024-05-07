@@ -52,7 +52,7 @@ public class ExceptionHandlers {
     }
 
     @ExceptionHandler(WithoutPermissionException.class)
-    public ResponseEntity<ResponseError> withoutPermissionException(WithoutPermissionException ex) {
+    public ResponseEntity<ResponseError> withoutPermissionException() {
         return ResponseEntity.status(403).body(
                 new ResponseError("without permission to perform this action")
         );

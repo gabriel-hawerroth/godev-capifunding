@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class ContributionTest {
+class ContributionTest {
 
     @Test
     @DisplayName("contribution - no args constructor")

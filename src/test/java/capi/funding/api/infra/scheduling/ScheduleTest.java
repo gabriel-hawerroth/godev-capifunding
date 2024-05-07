@@ -12,9 +12,9 @@ import org.springframework.test.context.ActiveProfiles;
 
 import static org.mockito.Mockito.verify;
 
-@ActiveProfiles("default")
+@ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class ScheduleTest {
+class ScheduleTest {
 
     @InjectMocks
     Schedule schedule;
@@ -25,7 +25,7 @@ public class ScheduleTest {
 
     @Test
     @DisplayName("clearUsersCache - should clear cache")
-    public void testClearUsersCacheShoulClearCache() {
+    void testClearUsersCacheShoulClearCache() {
         schedule.clearUsersCache();
 
         verify(securityFilter).clearUsersCache();
@@ -33,7 +33,7 @@ public class ScheduleTest {
 
     @Test
     @DisplayName("concludeAllProjectsEndingYesterdayNotCancelled - should call project service")
-    public void testShouldCallProjectService() {
+    void testShouldCallProjectService() {
         schedule.concludeAllProjectsEndingYesterdayNotCancelled();
 
         verify(projectService).concludeAllProjectsEndingYesterdayNotCancelled();

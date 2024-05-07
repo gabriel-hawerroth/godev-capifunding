@@ -23,7 +23,7 @@ import static org.mockito.Mockito.mock;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class ExceptionHandlersTest {
+class ExceptionHandlersTest {
 
     @InjectMocks
     ExceptionHandlers exceptionHandlers;
@@ -109,9 +109,7 @@ public class ExceptionHandlersTest {
     @Test
     @DisplayName("withoutPermissionException - should return bad request response")
     void testWithoutPermissionExceptionShouldReturnBadRequestResponse() {
-        final var response = exceptionHandlers.withoutPermissionException(
-                mock(WithoutPermissionException.class)
-        );
+        final var response = exceptionHandlers.withoutPermissionException();
 
         assertEquals(HttpStatusCode.valueOf(403), response.getStatusCode());
         assertEquals(
