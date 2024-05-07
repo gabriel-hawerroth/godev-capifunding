@@ -5,6 +5,7 @@ import capi.funding.api.dto.EditProjectSpendDTO;
 import capi.funding.api.entity.ProjectSpend;
 import capi.funding.api.services.ProjectSpendService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,14 +13,11 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/project-spend")
 public class ProjectSpendController {
 
     private final ProjectSpendService service;
-
-    public ProjectSpendController(ProjectSpendService service) {
-        this.service = service;
-    }
 
     @GetMapping("/get-by-project/{id}")
     public ResponseEntity<List<ProjectSpend>> findByProject(@PathVariable long id) {

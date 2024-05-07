@@ -27,7 +27,7 @@ import static org.mockito.Mockito.*;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class SecurityFilterTest {
+class SecurityFilterTest {
 
     final User user = new User(
             1L,
@@ -40,25 +40,25 @@ public class SecurityFilterTest {
     );
 
     @InjectMocks
-    SecurityFilter securityFilter;
+    private SecurityFilter securityFilter;
     @Mock
-    Utils utils;
+    private Utils utils;
     @Mock
-    TokenService tokenService;
+    private TokenService tokenService;
     @Mock
-    UserRepository userRepository;
+    private UserRepository userRepository;
     @Mock
-    HttpServletRequest httpServletRequest;
+    private HttpServletRequest httpServletRequest;
     @Mock
-    HttpServletResponse httpServletResponse;
+    private HttpServletResponse httpServletResponse;
     @Mock
-    FilterChain filterChain;
+    private FilterChain filterChain;
     @Captor
-    ArgumentCaptor<String> tokenCaptor;
+    private ArgumentCaptor<String> tokenCaptor;
 
     @Test
     @DisplayName("doFilterInternal - should recover the token")
-    public void testShouldRecoverTheToken() throws ServletException, IOException {
+    void testShouldRecoverTheToken() throws ServletException, IOException {
         securityFilter.addUserCache(user);
 
         final String token = "testToken";
@@ -75,7 +75,7 @@ public class SecurityFilterTest {
 
     @Test
     @DisplayName("doFilterInternal - should do nothing when request doesn't has authorization header")
-    public void testShouldDoNothinWhenRequestDoesntHasAuthorizationHeader() throws ServletException, IOException {
+    void testShouldDoNothinWhenRequestDoesntHasAuthorizationHeader() throws ServletException, IOException {
         SecurityContextHolder.getContext().setAuthentication(null);
         securityFilter.addUserCache(user);
 
@@ -90,7 +90,7 @@ public class SecurityFilterTest {
 
     @Test
     @DisplayName("doFilterInternal - shouldn't fetch user from database when it is in cache")
-    public void testShouldntFetchUserFromDatabaseWhenItIsInCache() throws ServletException, IOException {
+    void testShouldntFetchUserFromDatabaseWhenItIsInCache() throws ServletException, IOException {
         securityFilter.addUserCache(user);
 
         when(httpServletRequest.getHeader("Authorization")).thenReturn("Bearer token");
@@ -104,7 +104,7 @@ public class SecurityFilterTest {
 
     @Test
     @DisplayName("doFilterInternal - should fetch user from database and cache when it isn't in cache")
-    public void testShouldFetchUserFromDatabaseAndCacheWhenItIsntInCache() throws ServletException, IOException {
+    void testShouldFetchUserFromDatabaseAndCacheWhenItIsntInCache() throws ServletException, IOException {
         securityFilter.clearUsersCache();
 
         when(httpServletRequest.getHeader("Authorization")).thenReturn("Bearer token");
@@ -122,14 +122,14 @@ public class SecurityFilterTest {
 
     @Test
     @DisplayName("doFilterInternal - shouldn't accept null parameters")
-    public void testShouldntAcceptNullParameters() {
-        assertThrows(NullPointerException.class, () ->
+    void testShouldntAcceptNullParameters() {
+        assertThrows(IllegalArgumentException.class, () ->
                 securityFilter.doFilterInternal(null, httpServletResponse, filterChain));
 
-        assertThrows(NullPointerException.class, () ->
+        assertThrows(IllegalArgumentException.class, () ->
                 securityFilter.doFilterInternal(httpServletRequest, null, filterChain));
 
-        assertThrows(NullPointerException.class, () ->
+        assertThrows(IllegalArgumentException.class, () ->
                 securityFilter.doFilterInternal(httpServletRequest, httpServletResponse, null));
     }
 }

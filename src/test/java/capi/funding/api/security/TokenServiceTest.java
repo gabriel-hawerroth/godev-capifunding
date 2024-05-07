@@ -20,7 +20,7 @@ import static org.mockito.Mockito.*;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class TokenServiceTest {
+class TokenServiceTest {
 
     private static final String SECRET_KEY = "capi.funding.secret-token";
     private static final String TOKEN_ISSUER = "capifunding-api";
@@ -35,9 +35,9 @@ public class TokenServiceTest {
             null
     );
 
-    final TokenService tokenService;
+    private final TokenService tokenService;
 
-    final JwtService jwtService;
+    private final JwtService jwtService;
 
     public TokenServiceTest() {
         this.jwtService = mock(JwtService.class);
@@ -46,14 +46,14 @@ public class TokenServiceTest {
 
     @Test
     @DisplayName("generateToken - shouldn't accept null parameters")
-    public void testGenerateTokenShouldntAcceptNullParameters() {
-        assertThrows(NullPointerException.class, () ->
+    void testGenerateTokenShouldntAcceptNullParameters() {
+        assertThrows(IllegalArgumentException.class, () ->
                 tokenService.generateToken(null));
     }
 
     @Test
     @DisplayName("generateToken - should throw TokenGenerateException when occurs an error while generating token")
-    public void testGenerateTokenShouldThrowTokenGenerateExceptionWhenOccursAnErrorWhileGeneratingToken() {
+    void testGenerateTokenShouldThrowTokenGenerateExceptionWhenOccursAnErrorWhileGeneratingToken() {
         doThrow(JWTCreationException.class).when(jwtService).generateToken(any(User.class), any(Algorithm.class));
 
         assertThrows(TokenGenerateException.class, () ->
@@ -62,7 +62,7 @@ public class TokenServiceTest {
 
     @Test
     @DisplayName("generateToken - should generate the token")
-    public void testShouldGenerateTheToken() {
+    void testShouldGenerateTheToken() {
         when(jwtService.generateToken(any(User.class), any(Algorithm.class)))
                 .thenReturn("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjYXBpZnVuZGluZy1hcGkiLCJzdWIiOiJ0ZXN0QGdtYWlsLmNvbSIsImV4cCI6MTcxNTAyOTkwMn0.tRN5d-keE4XcOnMeUjnfv_-gmhztFxuQ6NcEKu8moo0");
 
@@ -74,14 +74,14 @@ public class TokenServiceTest {
 
     @Test
     @DisplayName("validateToken - shouldn't accept null parameters")
-    public void testValidateTokenShouldntAcceptNullParameters() {
-        assertThrows(NullPointerException.class, () ->
+    void testValidateTokenShouldntAcceptNullParameters() {
+        assertThrows(IllegalArgumentException.class, () ->
                 tokenService.validateToken(null));
     }
 
     @Test
     @DisplayName("validateToken - invalid token should return null")
-    public void testInvalidTokenShouldReturnNull() {
+    void testInvalidTokenShouldReturnNull() {
         final String token = "tokenTest";
 
         doThrow(JWTVerificationException.class).when(jwtService).validateToken(any(Algorithm.class), anyString());
@@ -91,10 +91,15 @@ public class TokenServiceTest {
 
     @Test
     @DisplayName("validateToken - should validate the token")
-    public void testShoulValidateTheToken() {
+    void testShoulValidateTheToken() {
         final String token = "tokenTest";
         tokenService.validateToken(token);
 
         verify(jwtService).validateToken(any(Algorithm.class), anyString());
     }
 }
+
+
+
+
+

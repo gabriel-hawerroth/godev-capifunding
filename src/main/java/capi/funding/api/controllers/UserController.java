@@ -5,19 +5,17 @@ import capi.funding.api.dto.NewPasswordDTO;
 import capi.funding.api.entity.User;
 import capi.funding.api.services.UserService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/user")
 public class UserController {
 
     private final UserService service;
-
-    public UserController(UserService service) {
-        this.service = service;
-    }
 
     @GetMapping("/get-token-user")
     public ResponseEntity<User> getAuthUser() {
@@ -52,5 +50,10 @@ public class UserController {
         return ResponseEntity.ok(
                 service.removeProfileImage()
         );
+    }
+
+    @GetMapping("/teste")
+    public void teste() {
+        service.teste(new User());
     }
 }

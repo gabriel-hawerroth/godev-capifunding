@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 public class TokenService {
 
     private final JwtService jwtService;
+
     private final String secret;
 
     public TokenService(JwtService jwtService, @Value("${api.security.token.secret}") String secret) {

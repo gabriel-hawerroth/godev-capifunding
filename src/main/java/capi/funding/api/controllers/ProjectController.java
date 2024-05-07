@@ -6,6 +6,7 @@ import capi.funding.api.dto.ProjectsListDTO;
 import capi.funding.api.entity.Project;
 import capi.funding.api.services.ProjectService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,14 +15,11 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/project")
 public class ProjectController {
 
     private final ProjectService projectService;
-
-    public ProjectController(ProjectService projectService) {
-        this.projectService = projectService;
-    }
 
     @GetMapping
     public ResponseEntity<List<ProjectsListDTO>> getProjectsList() {

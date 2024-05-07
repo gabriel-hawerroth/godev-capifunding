@@ -29,14 +29,14 @@ import static org.mockito.Mockito.when;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class UtilsTest {
+class UtilsTest {
 
     @InjectMocks
-    Utils utils;
+    private Utils utils;
     @Mock
-    Validator validator;
+    private Validator validator;
     @Mock
-    Errors errors;
+    private Errors errors;
 
     @Test
     @DisplayName("getCompressedSize - should return 3000 when isn't a mapped file size")
@@ -46,7 +46,7 @@ public class UtilsTest {
 
     @Test
     @DisplayName("getAuthUser - should throw exception when there is no authentication in the security context")
-    public void testShouldThrowExceptionWhenThereIsNoAuthenticationInTheSecurityContext() {
+    void testShouldThrowExceptionWhenThereIsNoAuthenticationInTheSecurityContext() {
         SecurityContextHolder.getContext().setAuthentication(null);
         AuthException exception = assertThrows(AuthException.class, () -> utils.getAuthUser());
 
@@ -55,7 +55,7 @@ public class UtilsTest {
 
     @Test
     @DisplayName("getAuthUser - should fetch the user from the authentication context")
-    public void testShouldFetchTheUserFromTheAuthenticationContext() {
+    void testShouldFetchTheUserFromTheAuthenticationContext() {
         final User user = new User();
         final var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -67,7 +67,7 @@ public class UtilsTest {
 
     @Test
     @DisplayName("checkPermission - should throw exception when user id is different")
-    public void testShouldThrowExceptionWhenUserIdIsDifferent() {
+    void testShouldThrowExceptionWhenUserIdIsDifferent() {
         final User user = new User();
         user.setId(1L);
         final var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
@@ -78,7 +78,7 @@ public class UtilsTest {
 
     @Test
     @DisplayName("checkPermission - should pass when user id is equals")
-    public void testShouldPassWhenUserIdIsEquals() {
+    void testShouldPassWhenUserIdIsEquals() {
         final User user = new User();
         user.setId(1L);
         final var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
@@ -89,14 +89,14 @@ public class UtilsTest {
 
     @Test
     @DisplayName("checkImageValidity - shouldn't accept null parameters")
-    public void testNullFileShouldThrowsException() {
-        assertThrows(NullPointerException.class, () ->
+    void testNullFileShouldThrowsException() {
+        assertThrows(IllegalArgumentException.class, () ->
                 utils.checkImageValidityAndCompress(null));
     }
 
     @Test
     @DisplayName("checkImageValidity - empty file should throws exception")
-    public void testEmptyFileShouldThrowsException() {
+    void testEmptyFileShouldThrowsException() {
         MockMultipartFile multipartFile = new MockMultipartFile(
                 "file", "test-image.jpg", "image/jpeg", new byte[0]
         );
@@ -107,7 +107,7 @@ public class UtilsTest {
 
     @Test
     @DisplayName("checkImageValidity - too large file should throws exception")
-    public void testTooLargeFileShouldThrowsException() {
+    void testTooLargeFileShouldThrowsException() {
         final MockMultipartFile mockFile = new MockMultipartFile(
                 "file",
                 "test-file.jpeg",
@@ -123,7 +123,7 @@ public class UtilsTest {
 
     @Test
     @DisplayName("checkImageValidity - invalid file name should throws exception")
-    public void testInvalidFileNameShouldThrowsException() {
+    void testInvalidFileNameShouldThrowsException() {
         final MockMultipartFile mockFile = new MockMultipartFile(
                 "file", "test", "text/plain", new byte[2000000]
         );
@@ -136,7 +136,7 @@ public class UtilsTest {
 
     @Test
     @DisplayName("checkImageValidity - invalid file extension should throws exception")
-    public void testInvalidFileExtensionShouldThrowsException() {
+    void testInvalidFileExtensionShouldThrowsException() {
         final MockMultipartFile mockFile = new MockMultipartFile(
                 "file", "test.txt", "text/plain", new byte[2000000]
         );
@@ -153,7 +153,7 @@ public class UtilsTest {
             "test.png",
             "test.webp"
     })
-    public void testPngOrWebpFilesShouldNotCompress(String fileName) {
+    void testPngOrWebpFilesShouldNotCompress(String fileName) {
         final byte[] fileContent = new byte[2000000];
 
         final MockMultipartFile mockFile = new MockMultipartFile(
@@ -168,7 +168,7 @@ public class UtilsTest {
 
     @Test
     @DisplayName("checkImageValidityAndCompress - invalid file should throws exception")
-    public void testInvalidFileShouldThrowsException() {
+    void testInvalidFileShouldThrowsException() {
         final byte[] fileContent = "test".getBytes();
 
         MockMultipartFile mockFile = new MockMultipartFile(
@@ -181,7 +181,7 @@ public class UtilsTest {
 
     @Test
     @DisplayName("checkImageValidityAndCompress - valid file should be compressed")
-    public void testValidFileShouldBeCompressed() throws IOException {
+    void testValidFileShouldBeCompressed() throws IOException {
         ClassLoader classLoader = getClass().getClassLoader();
         File file = new File(Objects.requireNonNull(classLoader.getResource("test-normal-image.jpeg")).getFile());
 
@@ -200,7 +200,7 @@ public class UtilsTest {
 
     @Test
     @DisplayName("validateObject - invalid object should throws exception")
-    public void testInvalidObjectShouldThrowsException() {
+    void testInvalidObjectShouldThrowsException() {
         final TestDTO testDTO = new TestDTO(null);
 
         when(errors.hasErrors()).thenReturn(true);
@@ -212,14 +212,14 @@ public class UtilsTest {
 
     @Test
     @DisplayName("validateObject - shouldn't accept null parameters")
-    public void testShouldntAcceptNullParameters() {
-        assertThrows(NullPointerException.class, () ->
+    void testShouldntAcceptNullParameters() {
+        assertThrows(IllegalArgumentException.class, () ->
                 utils.validateObject(null));
     }
 
     @Test
     @DisplayName("validateObject - should pass when object is valid")
-    public void testShouldPassWhenObjectIsValid() {
+    void testShouldPassWhenObjectIsValid() {
         final TestDTO testDTO = new TestDTO(null);
 
         when(errors.hasErrors()).thenReturn(false);

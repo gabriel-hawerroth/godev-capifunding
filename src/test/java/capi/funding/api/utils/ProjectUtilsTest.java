@@ -28,14 +28,14 @@ import static org.mockito.Mockito.*;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class ProjectUtilsTest {
+class ProjectUtilsTest {
 
-    final Map<String, String> NON_EDITABLE_STATUS_MESSAGE = Map.of(
+    private final Map<String, String> NON_EDITABLE_STATUS_MESSAGE = Map.of(
             "DONE", "this project has already been concluded and cannot be edited",
             "CANCELED", "this project has already been cancelled and cannot be edited"
     );
 
-    final ProjectMilestone milestone = new ProjectMilestone(
+    private final ProjectMilestone milestone = new ProjectMilestone(
             1L,
             1,
             "milestone title",
@@ -46,14 +46,14 @@ public class ProjectUtilsTest {
     );
 
     @InjectMocks
-    ProjectUtils projectUtils;
+    private ProjectUtils projectUtils;
     @Mock
-    ProjectMilestoneService milestoneService;
+    private ProjectMilestoneService milestoneService;
 
     @Test
     @DisplayName("checkProjectEditability - shouldn't accept null parameters")
-    public void testShouldntAcceptNullParameters() {
-        assertThrows(NullPointerException.class, () ->
+    void testShouldntAcceptNullParameters() {
+        assertThrows(IllegalArgumentException.class, () ->
                 projectUtils.checkProjectEditability(null));
     }
 
@@ -63,7 +63,7 @@ public class ProjectUtilsTest {
             "DONE",
             "CANCELED"
     })
-    public void testShouldThrowExceptionWithNonEditableProjectStatus(String projectStatus) {
+    void testShouldThrowExceptionWithNonEditableProjectStatus(String projectStatus) {
         final Project project = new Project();
         project.setStatus_id(ProjectStatusEnum.valueOf(projectStatus).getValue());
 
@@ -82,7 +82,7 @@ public class ProjectUtilsTest {
             "PAUSED",
             "IN_REVIEW"
     })
-    public void testShouldPassWithEditableProjectStatus(String projectStatus) {
+    void testShouldPassWithEditableProjectStatus(String projectStatus) {
         final Project project = new Project();
         project.setStatus_id(ProjectStatusEnum.valueOf(projectStatus).getValue());
 
@@ -91,27 +91,28 @@ public class ProjectUtilsTest {
 
     @Test
     @DisplayName("validateMilestoneSequenceNumber - shouldn't accept null milestone")
-    public void testValidateMilestoneSequenceNumberShouldntAcceptNullMilestone() {
-        assertThrows(NullPointerException.class, () ->
+    void testValidateMilestoneSequenceNumberShouldntAcceptNullMilestone() {
+        assertThrows(IllegalArgumentException.class, () ->
                 projectUtils.validateMilestoneSequenceNumber(2, null));
     }
 
     @Test
     @DisplayName("validateMilestoneSequenceNumber - should throw exception when a milestone with the same sequence and project already exists")
-    public void testShouldThrowExceptionWhenAMilestoneWithTheSameSequenceAndProjectAlreadyExists() {
+    void testShouldThrowExceptionWhenAMilestoneWithTheSameSequenceAndProjectAlreadyExists() {
         when(milestoneService.findByProjectAndSequence(milestone.getProject_id(), milestone.getSequence(), milestone.getId()))
                 .thenReturn(Optional.of(milestone));
 
-        final InvalidParametersException ex =
-                assertThrows(InvalidParametersException.class, () ->
-                        projectUtils.validateMilestoneSequenceNumber(milestone.getSequence() + 1, milestone));
+        final int milestoneSequence = milestone.getSequence() + 1;
+
+        final InvalidParametersException ex = assertThrows(InvalidParametersException.class, () ->
+                projectUtils.validateMilestoneSequenceNumber(milestoneSequence, milestone));
 
         assertEquals("this sequence number already exists in this project", ex.getMessage());
     }
 
     @Test
     @DisplayName("validateMilestoneSequenceNumber - should do nothing with an existing milestone and null sequence")
-    public void testShouldDoNothingWithAnExistingMilestoneAndNullSequence() {
+    void testShouldDoNothingWithAnExistingMilestoneAndNullSequence() {
         assertDoesNotThrow(() -> projectUtils.validateMilestoneSequenceNumber(null, milestone));
 
         verifyNoInteractions(milestoneService);
@@ -119,7 +120,7 @@ public class ProjectUtilsTest {
 
     @Test
     @DisplayName("validateMilestoneSequenceNumber - should call findLastProjectSequence from database")
-    public void testShoudCallFindLastProjectSequenceFromDatabase() {
+    void testShoudCallFindLastProjectSequenceFromDatabase() {
         milestone.setId(null);
 
         projectUtils.validateMilestoneSequenceNumber(null, milestone);
@@ -129,7 +130,7 @@ public class ProjectUtilsTest {
 
     @Test
     @DisplayName("validateMilestoneSequenceNumber - should be valid")
-    public void testShouldBeValid() {
+    void testShouldBeValid() {
         when(milestoneService.findByProjectAndSequence(milestone.getProject_id(), milestone.getSequence(), milestone.getId()))
                 .thenReturn(Optional.empty());
 
@@ -138,17 +139,20 @@ public class ProjectUtilsTest {
 
     @Test
     @DisplayName("validateNeedToFollowOrder - shouldn't accept null parameters")
-    public void testValidateNeedToFollowOrderShouldntAcceptNullParameters() {
-        assertThrows(NullPointerException.class, () ->
-                projectUtils.validateNeedToFollowOrder(null, new ProjectMilestone()));
+    void testValidateNeedToFollowOrderShouldntAcceptNullParameters() {
+        final ProjectMilestone projectMilestone = new ProjectMilestone();
+        final Project project = new Project();
 
-        assertThrows(NullPointerException.class, () ->
-                projectUtils.validateNeedToFollowOrder(new Project(), null));
+        assertThrows(IllegalArgumentException.class, () ->
+                projectUtils.validateNeedToFollowOrder(null, projectMilestone));
+
+        assertThrows(IllegalArgumentException.class, () ->
+                projectUtils.validateNeedToFollowOrder(project, null));
     }
 
     @Test
     @DisplayName("validateNeedToFollowOrder - should pass")
-    public void testValidateNeedToFollowOrderShouldPass() {
+    void testValidateNeedToFollowOrderShouldPass() {
         when(milestoneService.findByProjectAndMinorSequence(milestone.getProject_id(), milestone.getSequence()))
                 .thenReturn(Collections.emptyList());
 
@@ -170,7 +174,7 @@ public class ProjectUtilsTest {
 
     @Test
     @DisplayName("validateNeedToFollowOrder - should throw exception when project need to be completed in order")
-    public void testValidateNeedToFollowOrderShouldThrowExceptionWhenProjectNeedToBeCompletedInOrder() {
+    void testValidateNeedToFollowOrderShouldThrowExceptionWhenProjectNeedToBeCompletedInOrder() {
         when(milestoneService.findByProjectAndMinorSequence(milestone.getProject_id(), milestone.getSequence()))
                 .thenReturn(List.of(milestone, milestone));
 

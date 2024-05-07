@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
+@RequiredArgsConstructor
 public class SecurityFilter extends OncePerRequestFilter {
 
     @Getter
@@ -28,12 +30,6 @@ public class SecurityFilter extends OncePerRequestFilter {
     private final Utils utils;
     private final TokenService tokenService;
     private final UserRepository userRepository;
-
-    public SecurityFilter(Utils utils, TokenService tokenService, UserRepository userRepository) {
-        this.utils = utils;
-        this.tokenService = tokenService;
-        this.userRepository = userRepository;
-    }
 
     @Override
     protected void doFilterInternal(
@@ -59,9 +55,11 @@ public class SecurityFilter extends OncePerRequestFilter {
     }
 
     private User findUserByMail(String email) {
-        User user = usersCache.get(email);
+        final User user;
 
-        if (user == null) {
+        if (usersCache.containsKey(email)) {
+            user = usersCache.get(email);
+        } else {
             user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new NotFoundException("user not found"));
             usersCache.put(email, user);

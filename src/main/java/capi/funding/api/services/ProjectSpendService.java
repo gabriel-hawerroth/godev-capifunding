@@ -9,11 +9,13 @@ import capi.funding.api.infra.exceptions.NotFoundException;
 import capi.funding.api.repository.ProjectSpendRepository;
 import capi.funding.api.utils.ProjectUtils;
 import capi.funding.api.utils.Utils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ProjectSpendService {
 
     private final Utils utils;
@@ -21,13 +23,6 @@ public class ProjectSpendService {
     private final ProjectService projectService;
 
     private final ProjectSpendRepository repository;
-
-    public ProjectSpendService(Utils utils, ProjectUtils projectUtils, ProjectService projectService, ProjectSpendRepository repository) {
-        this.utils = utils;
-        this.projectUtils = projectUtils;
-        this.projectService = projectService;
-        this.repository = repository;
-    }
 
     public List<ProjectSpend> findByProject(long projectId) {
         if (!projectService.existsById(projectId)) {

@@ -8,24 +8,20 @@ import capi.funding.api.infra.exceptions.InvalidParametersException;
 import capi.funding.api.infra.exceptions.NotFoundException;
 import capi.funding.api.repository.UserRepository;
 import capi.funding.api.utils.Utils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final BCryptPasswordEncoder bcrypt;
     private final Utils utils;
 
     private final UserRepository userRepository;
-
-    public UserService(BCryptPasswordEncoder bcrypt, Utils utils, UserRepository userRepository) {
-        this.bcrypt = bcrypt;
-        this.utils = utils;
-        this.userRepository = userRepository;
-    }
 
     public User getAuthUser() {
         return utils.getAuthUser();
@@ -90,5 +86,9 @@ public class UserService {
         } catch (DataIntegrityViolationException ex) {
             throw new DataIntegrityException("this user has linked registers, impossible to exclude");
         }
+    }
+
+    public void teste(User user) {
+        utils.validateObject(user);
     }
 }

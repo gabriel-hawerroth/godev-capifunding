@@ -8,19 +8,17 @@ import capi.funding.api.infra.exceptions.MilestoneSequenceException;
 import capi.funding.api.infra.exceptions.ProjectEditabilityException;
 import capi.funding.api.services.ProjectMilestoneService;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class ProjectUtils {
 
     private final ProjectMilestoneService projectMilestoneService;
-
-    public ProjectUtils(ProjectMilestoneService projectMilestoneService) {
-        this.projectMilestoneService = projectMilestoneService;
-    }
 
     public void checkProjectEditability(@NonNull Project project) {
         final long projectStatusId = project.getStatus_id();

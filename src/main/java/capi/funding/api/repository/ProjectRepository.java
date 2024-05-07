@@ -17,7 +17,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
                 p.cover_image AS coverImage,
                 u.name AS creatorName,
                 u.profile_image AS creatorProfileImage,
-                p.final_date - current_date AS remainingDays,
+                GREATEST(p.final_date - current_date, 0) AS remainingDays,
                 get_project_percentage_raised(p.id) AS percentageRaised
             FROM
                 project p

@@ -32,37 +32,37 @@ import static org.mockito.Mockito.*;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class AuthServiceTest {
+class AuthServiceTest {
 
-    final AuthenticationDTO authDTO = new AuthenticationDTO(
+    private final AuthenticationDTO authDTO = new AuthenticationDTO(
             "test@gmail.com",
             "Testing#01"
     );
 
-    final CreateUserDTO createUserDTO = new CreateUserDTO(
+    private final CreateUserDTO createUserDTO = new CreateUserDTO(
             "test@gmail.com",
             "Testing#01",
             "test"
     );
 
     @InjectMocks
-    AuthService authService;
+    private AuthService authService;
     @Mock
-    AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
     @Mock
-    BCryptPasswordEncoder bCrypt;
+    private BCryptPasswordEncoder bCrypt;
     @Mock
-    TokenService tokenService;
+    private TokenService tokenService;
     @Mock
-    EmailService emailService;
+    private EmailService emailService;
     @Mock
-    UserService userService;
+    private UserService userService;
     @Captor
-    ArgumentCaptor<User> userCaptor;
+    private ArgumentCaptor<User> userCaptor;
 
     @Test
     @DisplayName("doLogin - should call authentication manager")
-    public void testShouldCallAuthenticationManager() {
+    void testShouldCallAuthenticationManager() {
         Authentication auth = mock(Authentication.class);
         when(authenticationManager.authenticate(any())).thenReturn(auth);
 
@@ -73,7 +73,7 @@ public class AuthServiceTest {
 
     @Test
     @DisplayName("doLogin - should generate and return the token")
-    public void testShouldGenerateAndReturnTheToken() {
+    void testShouldGenerateAndReturnTheToken() {
         Authentication auth = mock(Authentication.class);
         when(authenticationManager.authenticate(any())).thenReturn(auth);
         when(tokenService.generateToken(any())).thenReturn("tokenTest");
@@ -86,7 +86,7 @@ public class AuthServiceTest {
 
     @Test
     @DisplayName("doLogin - should throw auth exception with correct message when sended bad credentials")
-    public void testShouldThrowAuthExceptionWithCorrectMessageWhenSendedBadCredentials() {
+    void testShouldThrowAuthExceptionWithCorrectMessageWhenSendedBadCredentials() {
         when(authenticationManager.authenticate(any())).thenThrow(BadCredentialsException.class);
 
         AuthException exception = assertThrows(AuthException.class, () ->
@@ -97,7 +97,7 @@ public class AuthServiceTest {
 
     @Test
     @DisplayName("doLogin - should throw auth exception with correct message when user is inactive")
-    public void testShouldThrowAuthExceptionWithCorrectMessageWhenUserIsInactive() {
+    void testShouldThrowAuthExceptionWithCorrectMessageWhenUserIsInactive() {
         when(authenticationManager.authenticate(any())).thenThrow(DisabledException.class);
 
         AuthException exception = assertThrows(AuthException.class, () ->
@@ -108,7 +108,7 @@ public class AuthServiceTest {
 
     @Test
     @DisplayName("createNewUser - should encrypt the password")
-    public void testShouldEncryptThePassword() {
+    void testShouldEncryptThePassword() {
         final User user = createUserDTO.toUser();
         user.setId(1L);
 
@@ -121,7 +121,7 @@ public class AuthServiceTest {
 
     @Test
     @DisplayName("createNewUser - should send the activate account mail")
-    public void testShouldSendTheActivateAccountMail() throws MessagingException {
+    void testShouldSendTheActivateAccountMail() throws MessagingException {
         final User user = createUserDTO.toUser();
         user.setId(1L);
 
@@ -136,20 +136,20 @@ public class AuthServiceTest {
 
     @Test
     @DisplayName("createNewUser - shouldn't accept null user mail")
-    public void testShoulntAcceptNullUserMail() {
+    void testShoulntAcceptNullUserMail() {
         final User user = createUserDTO.toUser();
         user.setId(1L);
         user.setEmail(null);
 
         when(userService.save(any(User.class))).thenReturn(user);
 
-        assertThrows(NullPointerException.class, () ->
+        assertThrows(IllegalArgumentException.class, () ->
                 authService.createNewUser(createUserDTO));
     }
 
     @Test
     @DisplayName("sendActivateAccountEmail - should delete the created user when sendMail throw AuthenticationFailedException")
-    public void testShouldDeleteTheCreatedUserWhenSendMailThrowAuthenticationFailedException() throws MessagingException {
+    void testShouldDeleteTheCreatedUserWhenSendMailThrowAuthenticationFailedException() throws MessagingException {
         final User user = createUserDTO.toUser();
         user.setId(1L);
 
@@ -165,7 +165,7 @@ public class AuthServiceTest {
 
     @Test
     @DisplayName("sendActivateAccountEmail - should delete the created user when sendMail throw MessagingException")
-    public void testShouldDeleteTheCreatedUserWhenSendMailThrowMessagingException() throws MessagingException {
+    void testShouldDeleteTheCreatedUserWhenSendMailThrowMessagingException() throws MessagingException {
         final User user = createUserDTO.toUser();
         user.setId(1L);
 
@@ -181,14 +181,14 @@ public class AuthServiceTest {
 
     @Test
     @DisplayName("activateAccount - shouldn't accept null token")
-    public void testShouldntAcceptNullToken() {
-        assertThrows(NullPointerException.class, () ->
+    void testShouldntAcceptNullToken() {
+        assertThrows(IllegalArgumentException.class, () ->
                 authService.activateAccount(1, null));
     }
 
     @Test
     @DisplayName("activateAccount - should throw exception token doesn't match with the encrypted mail")
-    public void testShouldVerifyIfTokenMatchesWithTheEncryptedMail() {
+    void testShouldVerifyIfTokenMatchesWithTheEncryptedMail() {
         final long userId = 1;
         final String token = "tokenTest";
 
@@ -204,7 +204,7 @@ public class AuthServiceTest {
 
     @Test
     @DisplayName("activateAccount - should active the user")
-    public void testShouldActiveTheUser() {
+    void testShouldActiveTheUser() {
         when(userService.findById(anyLong())).thenReturn(createUserDTO.toUser());
         when(bCrypt.matches(anyString(), anyString())).thenReturn(true);
 

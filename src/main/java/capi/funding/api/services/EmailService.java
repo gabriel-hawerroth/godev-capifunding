@@ -6,21 +6,18 @@ import capi.funding.api.utils.Utils;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class EmailService {
 
     private final JavaMailSender javaMailSender;
 
     private final Utils utils;
-
-    public EmailService(JavaMailSender javaMailSender, Utils utils) {
-        this.javaMailSender = javaMailSender;
-        this.utils = utils;
-    }
 
     public void sendMail(@NonNull EmailDTO email) throws MessagingException {
         utils.validateObject(email);

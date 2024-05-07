@@ -8,6 +8,7 @@ import capi.funding.api.infra.exceptions.InvalidParametersException;
 import capi.funding.api.infra.exceptions.NotFoundException;
 import capi.funding.api.repository.ContributionRepository;
 import capi.funding.api.utils.Utils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -15,18 +16,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ContributionService {
 
     private final Utils utils;
     private final ProjectService projectService;
 
     private final ContributionRepository contributionRepository;
-
-    public ContributionService(Utils utils, ProjectService projectService, ContributionRepository contributionRepository) {
-        this.utils = utils;
-        this.projectService = projectService;
-        this.contributionRepository = contributionRepository;
-    }
 
     public List<Contribution> findByProject(long projectId) {
         if (!projectService.existsById(projectId)) {

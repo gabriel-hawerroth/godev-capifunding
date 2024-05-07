@@ -16,16 +16,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class JwtServiceTest {
+class JwtServiceTest {
 
     private static final String SECRET_KEY = "capi.funding.secret-token";
 
-    User user;
+    private User user;
 
     @InjectMocks
-    JwtService jwtService;
+    private JwtService jwtService;
     @Mock
-    Algorithm algorithm;
+    private Algorithm algorithm;
 
     @BeforeEach
     void setUp() {
@@ -35,17 +35,17 @@ public class JwtServiceTest {
 
     @Test
     @DisplayName("generateToken - shouldn't accept null parameters")
-    public void testGenerateTokenShouldntAcceptNullParameters() {
-        assertThrows(NullPointerException.class, () ->
+    void testGenerateTokenShouldntAcceptNullParameters() {
+        assertThrows(IllegalArgumentException.class, () ->
                 jwtService.generateToken(null, algorithm));
 
-        assertThrows(NullPointerException.class, () ->
+        assertThrows(IllegalArgumentException.class, () ->
                 jwtService.generateToken(user, null));
     }
 
     @Test
     @DisplayName("generateToken - should generate the token")
-    public void testShouldGenerateTheToken() {
+    void testShouldGenerateTheToken() {
         final String token = assertDoesNotThrow(() ->
                 jwtService.generateToken(user, Algorithm.HMAC256("secret_key")));
 
@@ -56,10 +56,10 @@ public class JwtServiceTest {
     @Test
     @DisplayName("validateToken - shouldn't accept null paramaters")
     void testValidateTokenShouldntAcceptNullParameters() {
-        assertThrows(NullPointerException.class, () ->
+        assertThrows(IllegalArgumentException.class, () ->
                 jwtService.validateToken(null, "token"));
 
-        assertThrows(NullPointerException.class, () ->
+        assertThrows(IllegalArgumentException.class, () ->
                 jwtService.validateToken(algorithm, null));
     }
 

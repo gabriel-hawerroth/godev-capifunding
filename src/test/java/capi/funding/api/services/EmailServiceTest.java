@@ -19,24 +19,24 @@ import static org.mockito.Mockito.*;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class EmailServiceTest {
+class EmailServiceTest {
 
-    final EmailDTO emailDTO = new EmailDTO(
+    private final EmailDTO emailDTO = new EmailDTO(
             "gabriel@gmail.com",
             "subject test",
             "content test"
     );
 
     @InjectMocks
-    EmailService emailService;
+    private EmailService emailService;
     @Mock
-    JavaMailSender javaMailSender;
+    private JavaMailSender javaMailSender;
     @Mock
-    Utils utils;
+    private Utils utils;
 
     @Test
     @DisplayName("sendMail - should validate the DTO")
-    public void testShouldValidateTheDTO() throws MessagingException {
+    void testShouldValidateTheDTO() throws MessagingException {
         MimeMessage mimeMessage = mock(MimeMessage.class);
         when(javaMailSender.createMimeMessage()).thenReturn(mimeMessage);
 
@@ -47,24 +47,24 @@ public class EmailServiceTest {
 
     @Test
     @DisplayName("sendMail - shouldn't accept null parameters")
-    public void testSendMailShouldntAcceptNullParameters() {
-        assertThrows(NullPointerException.class, () ->
+    void testSendMailShouldntAcceptNullParameters() {
+        assertThrows(IllegalArgumentException.class, () ->
                 emailService.sendMail(null));
     }
 
     @Test
     @DisplayName("buildEmailTemplate - shouldn't accept null parameters")
-    public void testBuildEmailTemplateShouldntAcceptNullParameters() {
-        assertThrows(NullPointerException.class, () ->
+    void testBuildEmailTemplateShouldntAcceptNullParameters() {
+        assertThrows(IllegalArgumentException.class, () ->
                 emailService.buildEmailTemplate(null, 1, "token"));
 
-        assertThrows(NullPointerException.class, () ->
+        assertThrows(IllegalArgumentException.class, () ->
                 emailService.buildEmailTemplate(EmailType.ACTIVATE_ACCOUNT, 1, null));
     }
 
     @Test
     @DisplayName("buildEmailTemplate - should build the email content")
-    public void testShouldBuildTheEmailContent() {
+    void testShouldBuildTheEmailContent() {
         final String mailContent = emailService.buildEmailTemplate(
                 EmailType.ACTIVATE_ACCOUNT, 1, "token"
         );
