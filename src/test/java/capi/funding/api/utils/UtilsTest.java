@@ -39,6 +39,12 @@ public class UtilsTest {
     Errors errors;
 
     @Test
+    @DisplayName("getCompressedSize - should return 3000 when isn't a mapped file size")
+    void testGetCompressedSizeShouldReturn3000WhenIsntAMappedFileSize() {
+        assertEquals(3000, utils.getCompressedSize(new byte[Integer.MAX_VALUE - 1000]));
+    }
+
+    @Test
     @DisplayName("getAuthUser - should throw exception when there is no authentication in the security context")
     public void testShouldThrowExceptionWhenThereIsNoAuthenticationInTheSecurityContext() {
         SecurityContextHolder.getContext().setAuthentication(null);

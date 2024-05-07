@@ -42,7 +42,7 @@ public class ProjectTest {
 
     @Test
     @DisplayName("project - getters and setters")
-    void testGetters() {
+    void testGettersAndSetters() {
         final LocalDateTime now = LocalDateTime.now();
         final byte[] cover_image = new byte[1830239];
         final Project project = new Project();
@@ -119,10 +119,19 @@ public class ProjectTest {
     @Test
     @DisplayName("project - update values with valid attributes")
     void testUpdateValuesWithValidAttributes() {
-        final Project project = new Project();
-        project.setTitle("project title");
-        project.setDescription("description");
-        project.setNeed_to_follow_order(true);
+        final Project project = new Project(
+                1L,
+                "project title",
+                "project description",
+                2138,
+                4,
+                3,
+                false,
+                LocalDateTime.now().minusDays(10),
+                LocalDate.now().minusDays(8),
+                LocalDate.now().plusDays(5),
+                null
+        );
 
         final EditProjectDTO editProjectDTO = new EditProjectDTO(
                 "new title",
@@ -134,6 +143,7 @@ public class ProjectTest {
         );
 
         assertDoesNotThrow(() -> project.updateValues(editProjectDTO));
+
         assertAll("updated project values",
                 () -> assertEquals("new title", project.getTitle()),
                 () -> assertEquals("new description", project.getDescription()),

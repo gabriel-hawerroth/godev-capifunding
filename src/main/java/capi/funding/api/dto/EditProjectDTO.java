@@ -11,6 +11,8 @@ public record EditProjectDTO(
         String description,
 
         @Positive
+        @Min(value = 1, message = "The category ID must be valid")
+        @Max(value = 8, message = "The category ID must be valid")
         Long category_id,
 
         @Positive

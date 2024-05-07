@@ -3,7 +3,6 @@ package capi.funding.api.security;
 import capi.funding.api.entity.User;
 import capi.funding.api.infra.exceptions.TokenGenerateException;
 import capi.funding.api.services.JwtService;
-import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
@@ -13,8 +12,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class TokenService {
-
-    private static final String TOKEN_ISSUER = "capifunding-api";
 
     private final JwtService jwtService;
     private final String secret;
@@ -28,7 +25,7 @@ public class TokenService {
         final Algorithm algorithm = Algorithm.HMAC256(secret);
 
         try {
-            return jwtService.generateToken(TOKEN_ISSUER, user, algorithm);
+            return jwtService.generateToken(user, algorithm);
         } catch (JWTCreationException exception) {
             throw new TokenGenerateException("error while generating token");
         }
@@ -38,11 +35,7 @@ public class TokenService {
         final Algorithm algorithm = Algorithm.HMAC256(secret);
 
         try {
-            return JWT.require(algorithm)
-                    .withIssuer(TOKEN_ISSUER)
-                    .build()
-                    .verify(token)
-                    .getSubject();
+            return jwtService.validateToken(algorithm, token);
         } catch (JWTVerificationException exception) {
             return null;
         }

@@ -35,7 +35,7 @@ public class ContributionTest {
 
     @Test
     @DisplayName("contribution - getters and setters")
-    void testGetters() {
+    void testGettersAndSetters() {
         final LocalDateTime now = LocalDateTime.now();
         final Contribution contribution = new Contribution();
 

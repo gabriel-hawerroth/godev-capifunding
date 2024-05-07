@@ -37,7 +37,7 @@ public class ProjectMilestoneTest {
     }
 
     @Test
-    @DisplayName("project milestone - createProjectMilestoneDTO constructor")
+    @DisplayName("project milestone - CreateProjectMilestoneDTO constructor")
     void testCreateProjectMilestoneDTOConstructor() {
         final CreateProjectMilestoneDTO createMilestoneDTO = new CreateProjectMilestoneDTO(
                 1,
@@ -62,7 +62,7 @@ public class ProjectMilestoneTest {
 
     @Test
     @DisplayName("project milestone - getters and setters")
-    void testGetters() {
+    void testGettersAndSetters() {
         final ProjectMilestone milestone = new ProjectMilestone();
 
         assertDoesNotThrow(() -> {
@@ -125,11 +125,15 @@ public class ProjectMilestoneTest {
     @Test
     @DisplayName("project milestone - update values with valid attributes")
     void testUpdateValuesWithValidAttributes() {
-        final ProjectMilestone milestone = new ProjectMilestone();
-        milestone.setTitle("milestone title");
-        milestone.setDescription("milestone description");
-        milestone.setContribution_goal(BigDecimal.TEN);
-        milestone.setSequence(1);
+        final ProjectMilestone milestone = new ProjectMilestone(
+                1L,
+                68,
+                "milestone title",
+                "milestone description",
+                3,
+                false,
+                BigDecimal.valueOf(1000)
+        );
 
         final EditProjectMilestoneDTO editMilestoneDTO = new EditProjectMilestoneDTO(
                 "new title",
@@ -140,10 +144,13 @@ public class ProjectMilestoneTest {
         );
 
         assertDoesNotThrow(() -> milestone.updateValues(editMilestoneDTO));
-        assertEquals("new title", milestone.getTitle());
-        assertEquals("new description", milestone.getDescription());
-        assertEquals(5, milestone.getSequence());
-        assertTrue(milestone.isCompleted());
-        assertEquals(BigDecimal.valueOf(200), milestone.getContribution_goal());
+
+        assertAll("updated values",
+                () -> assertEquals("new title", milestone.getTitle()),
+                () -> assertEquals("new description", milestone.getDescription()),
+                () -> assertEquals(5, milestone.getSequence()),
+                () -> assertTrue(milestone.isCompleted()),
+                () -> assertEquals(BigDecimal.valueOf(200), milestone.getContribution_goal())
+        );
     }
 }
