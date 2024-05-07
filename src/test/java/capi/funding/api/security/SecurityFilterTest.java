@@ -7,6 +7,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,15 +30,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class SecurityFilterTest {
 
-    final User user = new User(
-            1L,
-            "gabriel@gmail.com",
-            "$2a$10$WjNOD14Yf.LCe3L6gGT9IemiY.4qtxcpv4AEl8DFjxt3HmyKlPn62",
-            "Gabriel",
-            true,
-            LocalDateTime.now().minusDays(45),
-            null
-    );
+    private User user;
 
     @InjectMocks
     private SecurityFilter securityFilter;
@@ -55,6 +48,19 @@ class SecurityFilterTest {
     private FilterChain filterChain;
     @Captor
     private ArgumentCaptor<String> tokenCaptor;
+
+    @BeforeEach
+    void setUp() {
+        user = new User(
+                1L,
+                "gabriel@gmail.com",
+                "$2a$10$WjNOD14Yf.LCe3L6gGT9IemiY.4qtxcpv4AEl8DFjxt3HmyKlPn62",
+                "Gabriel",
+                true,
+                LocalDateTime.now().minusDays(45),
+                null
+        );
+    }
 
     @Test
     @DisplayName("doFilterInternal - should recover the token")

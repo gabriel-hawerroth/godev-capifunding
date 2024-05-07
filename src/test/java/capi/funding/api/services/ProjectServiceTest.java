@@ -13,6 +13,7 @@ import capi.funding.api.infra.exceptions.NotFoundException;
 import capi.funding.api.repository.ProjectRepository;
 import capi.funding.api.utils.ProjectUtils;
 import capi.funding.api.utils.Utils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,48 +41,10 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ProjectServiceTest {
 
-    private final Project project = new Project(
-            1L,
-            "test project",
-            "project description",
-            1,
-            ProjectCategoryEnum.TECHNOLOGY.getValue(),
-            ProjectStatusEnum.IN_PROGRESS.getValue(),
-            false,
-            LocalDateTime.now(),
-            LocalDate.now().plusDays(1),
-            LocalDate.now().plusDays(20),
-            null
-    );
-
-    private final EditProjectDTO editProjectDTO = new EditProjectDTO(
-            "new title",
-            "new description",
-            null,
-            null,
-            null,
-            null
-    );
-
-    private final ProjectMilestone projectMilestone = new ProjectMilestone(
-            1L,
-            1,
-            "project milestone title",
-            "project milestone description",
-            1,
-            false,
-            BigDecimal.valueOf(100)
-    );
-
-    private final User user = new User(
-            1L,
-            "test@gmail.com",
-            "Testing#01",
-            "test",
-            true,
-            LocalDateTime.now().minusDays(40),
-            null
-    );
+    private Project project;
+    private EditProjectDTO editProjectDTO;
+    private ProjectMilestone projectMilestone;
+    private User user;
 
     @InjectMocks
     private ProjectService projectService;
@@ -97,6 +60,52 @@ class ProjectServiceTest {
     private ArgumentCaptor<Project> projectCaptor;
     @Captor
     private ArgumentCaptor<List<Project>> projectListCaptor;
+
+    @BeforeEach
+    void setUp() {
+        project = new Project(
+                1L,
+                "test project",
+                "project description",
+                1,
+                ProjectCategoryEnum.TECHNOLOGY.getValue(),
+                ProjectStatusEnum.IN_PROGRESS.getValue(),
+                false,
+                LocalDateTime.now(),
+                LocalDate.now().plusDays(1),
+                LocalDate.now().plusDays(20),
+                null
+        );
+
+        editProjectDTO = new EditProjectDTO(
+                "new title",
+                "new description",
+                null,
+                null,
+                null,
+                null
+        );
+
+        projectMilestone = new ProjectMilestone(
+                1L,
+                1,
+                "project milestone title",
+                "project milestone description",
+                1,
+                false,
+                BigDecimal.valueOf(100)
+        );
+
+        user = new User(
+                1L,
+                "test@gmail.com",
+                "Testing#01",
+                "test",
+                true,
+                LocalDateTime.now().minusDays(40),
+                null
+        );
+    }
 
     @Test
     @DisplayName("getProjectsList - should fetch projects list from database")

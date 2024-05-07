@@ -3,6 +3,7 @@ package capi.funding.api.controllers;
 import capi.funding.api.dto.CreateProjectDTO;
 import capi.funding.api.dto.EditProjectDTO;
 import capi.funding.api.dto.ProjectsListDTO;
+import capi.funding.api.dto.ProjectsListFiltersDTO;
 import capi.funding.api.entity.Project;
 import capi.funding.api.services.ProjectService;
 import jakarta.validation.Valid;
@@ -25,6 +26,23 @@ public class ProjectController {
     public ResponseEntity<List<ProjectsListDTO>> getProjectsList() {
         return ResponseEntity.ok(
                 projectService.getProjectsList()
+        );
+    }
+
+    @GetMapping("/filtered-projects")
+    public ResponseEntity<List<ProjectsListDTO>> getFilteredProjectsList(
+            @RequestParam(required = false, defaultValue = "") String projectTitle,
+            @RequestParam(required = false) List<Integer> projectStatus,
+            @RequestParam(required = false, defaultValue = "") String creatorName
+    ) {
+        final ProjectsListFiltersDTO filtersDTO = new ProjectsListFiltersDTO(
+                projectTitle,
+                projectStatus,
+                creatorName
+        );
+
+        return ResponseEntity.ok(
+                projectService.getFilteredProjectsList(filtersDTO)
         );
     }
 

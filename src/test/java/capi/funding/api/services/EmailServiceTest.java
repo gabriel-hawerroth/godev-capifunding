@@ -5,6 +5,7 @@ import capi.funding.api.enums.EmailType;
 import capi.funding.api.utils.Utils;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,11 +22,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class EmailServiceTest {
 
-    private final EmailDTO emailDTO = new EmailDTO(
-            "gabriel@gmail.com",
-            "subject test",
-            "content test"
-    );
+    private EmailDTO emailDTO;
 
     @InjectMocks
     private EmailService emailService;
@@ -33,6 +30,15 @@ class EmailServiceTest {
     private JavaMailSender javaMailSender;
     @Mock
     private Utils utils;
+
+    @BeforeEach
+    void setUp() {
+        emailDTO = new EmailDTO(
+                "gabriel@gmail.com",
+                "subject test",
+                "content test"
+        );
+    }
 
     @Test
     @DisplayName("sendMail - should validate the DTO")

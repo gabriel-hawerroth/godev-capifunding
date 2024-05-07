@@ -1,5 +1,6 @@
 package capi.funding.api.utils;
 
+import capi.funding.api.dto.ProjectsListFiltersDTO;
 import capi.funding.api.entity.Project;
 import capi.funding.api.entity.ProjectMilestone;
 import capi.funding.api.enums.ProjectStatusEnum;
@@ -11,6 +12,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,5 +60,29 @@ public class ProjectUtils {
                 throw new MilestoneSequenceException("the milestones of this project need to be completed in the sequence");
             }
         }
+    }
+
+    public ProjectsListFiltersDTO buildFilters(ProjectsListFiltersDTO filters) {
+        if (filters.getProjectTitle() == null || filters.getProjectTitle().isBlank()) {
+            filters.setProjectTitle("");
+        } else {
+            filters.setProjectTitle(
+                    "%".concat(filters.getProjectTitle().trim().toLowerCase()).concat("%")
+            );
+        }
+
+        if (filters.getProjectStatus() == null) {
+            filters.setProjectStatus(Collections.emptyList());
+        }
+
+        if (filters.getCreatorName() == null || filters.getCreatorName().isBlank()) {
+            filters.setCreatorName("");
+        } else {
+            filters.setCreatorName(
+                    "%".concat(filters.getCreatorName().trim().toLowerCase()).concat("%")
+            );
+        }
+
+        return filters;
     }
 }

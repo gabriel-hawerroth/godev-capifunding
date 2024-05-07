@@ -12,6 +12,7 @@ import capi.funding.api.infra.exceptions.NotFoundException;
 import capi.funding.api.repository.ProjectMilestoneRepository;
 import capi.funding.api.utils.ProjectUtils;
 import capi.funding.api.utils.Utils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,49 +38,13 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ProjectMilestoneServiceTest {
 
-    private final long milestoneId = 1;
-    private final long projectId = 1;
+    private static final long milestoneId = 1;
+    private static final long projectId = 1;
 
-    private final CreateProjectMilestoneDTO createProjectMilestoneDTO = new CreateProjectMilestoneDTO(
-            1,
-            "project milestone title",
-            "project milestone description",
-            1,
-            false,
-            BigDecimal.valueOf(100)
-    );
-
-    private final EditProjectMilestoneDTO editProjectMilestoneDTO = new EditProjectMilestoneDTO(
-            "new title",
-            "new description",
-            2,
-            null,
-            null
-    );
-
-    private final ProjectMilestone projectMilestone = new ProjectMilestone(
-            1L,
-            1,
-            "milestone title",
-            "mileston description",
-            1,
-            false,
-            BigDecimal.valueOf(100)
-    );
-
-    private final Project project = new Project(
-            1L,
-            "test project",
-            "project description",
-            1,
-            ProjectCategoryEnum.TECHNOLOGY.getValue(),
-            ProjectStatusEnum.IN_PROGRESS.getValue(),
-            false,
-            LocalDateTime.now(),
-            LocalDate.now().plusDays(1),
-            LocalDate.now().plusDays(20),
-            null
-    );
+    private CreateProjectMilestoneDTO createProjectMilestoneDTO;
+    private EditProjectMilestoneDTO editProjectMilestoneDTO;
+    private ProjectMilestone projectMilestone;
+    private Project project;
 
     @InjectMocks
     private ProjectMilestoneService milestoneService;
@@ -93,6 +58,50 @@ class ProjectMilestoneServiceTest {
     private ProjectMilestoneRepository repository;
     @Captor
     private ArgumentCaptor<ProjectMilestone> milestoneCaptor;
+
+    @BeforeEach
+    void setUp() {
+        createProjectMilestoneDTO = new CreateProjectMilestoneDTO(
+                1,
+                "project milestone title",
+                "project milestone description",
+                1,
+                false,
+                BigDecimal.valueOf(100)
+        );
+
+        editProjectMilestoneDTO = new EditProjectMilestoneDTO(
+                "new title",
+                "new description",
+                2,
+                null,
+                null
+        );
+
+        projectMilestone = new ProjectMilestone(
+                1L,
+                1,
+                "milestone title",
+                "mileston description",
+                1,
+                false,
+                BigDecimal.valueOf(100)
+        );
+
+        project = new Project(
+                1L,
+                "test project",
+                "project description",
+                1,
+                ProjectCategoryEnum.TECHNOLOGY.getValue(),
+                ProjectStatusEnum.IN_PROGRESS.getValue(),
+                false,
+                LocalDateTime.now(),
+                LocalDate.now().plusDays(1),
+                LocalDate.now().plusDays(20),
+                null
+        );
+    }
 
     @Test
     @DisplayName("findByProject - should validate that the project exists")

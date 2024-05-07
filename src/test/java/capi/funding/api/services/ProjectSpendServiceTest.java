@@ -11,6 +11,7 @@ import capi.funding.api.infra.exceptions.NotFoundException;
 import capi.funding.api.repository.ProjectSpendRepository;
 import capi.funding.api.utils.ProjectUtils;
 import capi.funding.api.utils.Utils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,46 +37,13 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ProjectSpendServiceTest {
 
-    private final long spendId = 1;
-    private final long projectId = 1;
+    private static final long spendId = 1;
+    private static final long projectId = 1;
 
-    private final CreateProjectSpendDTO createProjectMilestoneDTO = new CreateProjectSpendDTO(
-            1,
-            1L,
-            "spend description",
-            BigDecimal.valueOf(2300),
-            LocalDate.now().minusDays(12)
-    );
-
-    private final EditProjectSpendDTO editProjectSpendDTO = new EditProjectSpendDTO(
-            null,
-            "new description",
-            BigDecimal.valueOf(940),
-            LocalDate.now().minusDays(4)
-    );
-
-    private final ProjectSpend projectSpend = new ProjectSpend(
-            1L,
-            1,
-            1L,
-            "spend description",
-            BigDecimal.valueOf(2000),
-            LocalDate.now().minusDays(1)
-    );
-
-    private final Project project = new Project(
-            1L,
-            "test project",
-            "project description",
-            1,
-            ProjectCategoryEnum.TECHNOLOGY.getValue(),
-            ProjectStatusEnum.IN_PROGRESS.getValue(),
-            false,
-            LocalDateTime.now(),
-            LocalDate.now().plusDays(1),
-            LocalDate.now().plusDays(20),
-            null
-    );
+    private CreateProjectSpendDTO createProjectMilestoneDTO;
+    private EditProjectSpendDTO editProjectSpendDTO;
+    private ProjectSpend projectSpend;
+    private Project project;
 
     @InjectMocks
     private ProjectSpendService service;
@@ -89,6 +57,47 @@ class ProjectSpendServiceTest {
     private ProjectSpendRepository repository;
     @Captor
     private ArgumentCaptor<ProjectSpend> spendCaptor;
+
+    @BeforeEach
+    void setUp() {
+        createProjectMilestoneDTO = new CreateProjectSpendDTO(
+                1,
+                1L,
+                "spend description",
+                BigDecimal.valueOf(2300),
+                LocalDate.now().minusDays(12)
+        );
+
+        editProjectSpendDTO = new EditProjectSpendDTO(
+                null,
+                "new description",
+                BigDecimal.valueOf(940),
+                LocalDate.now().minusDays(4)
+        );
+
+        projectSpend = new ProjectSpend(
+                1L,
+                1,
+                1L,
+                "spend description",
+                BigDecimal.valueOf(2000),
+                LocalDate.now().minusDays(1)
+        );
+
+        project = new Project(
+                1L,
+                "test project",
+                "project description",
+                1,
+                ProjectCategoryEnum.TECHNOLOGY.getValue(),
+                ProjectStatusEnum.IN_PROGRESS.getValue(),
+                false,
+                LocalDateTime.now(),
+                LocalDate.now().plusDays(1),
+                LocalDate.now().plusDays(20),
+                null
+        );
+    }
 
     @Test
     @DisplayName("findByProject - should validate that the project exists")

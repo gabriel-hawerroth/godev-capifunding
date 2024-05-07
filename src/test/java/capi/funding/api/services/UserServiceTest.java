@@ -8,6 +8,7 @@ import capi.funding.api.infra.exceptions.InvalidParametersException;
 import capi.funding.api.infra.exceptions.NotFoundException;
 import capi.funding.api.repository.UserRepository;
 import capi.funding.api.utils.Utils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,17 +32,9 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
-    private final NewPasswordDTO newPasswordDTO = new NewPasswordDTO("Gabriel#01");
-    private final EditUserDTO editUserDTO = new EditUserDTO("Murilo");
-    private final User user = new User(
-            1L,
-            "gabriel@gmail.com",
-            "$2a$10$WjNOD14Yf.LCe3L6gGT9IemiY.4qtxcpv4AEl8DFjxt3HmyKlPn62",
-            "Gabriel",
-            true,
-            LocalDateTime.now().minusDays(45),
-            null
-    );
+    private NewPasswordDTO newPasswordDTO;
+    private EditUserDTO editUserDTO;
+    private User user;
 
     @InjectMocks
     private UserService userService;
@@ -51,6 +44,21 @@ class UserServiceTest {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     @Mock
     private UserRepository userRepository;
+
+    @BeforeEach
+    void setUp() {
+        newPasswordDTO = new NewPasswordDTO("Gabriel#01");
+        editUserDTO = new EditUserDTO("Murilo");
+        user = new User(
+                1L,
+                "gabriel@gmail.com",
+                "$2a$10$WjNOD14Yf.LCe3L6gGT9IemiY.4qtxcpv4AEl8DFjxt3HmyKlPn62",
+                "Gabriel",
+                true,
+                LocalDateTime.now().minusDays(45),
+                null
+        );
+    }
 
     @Test
     @DisplayName("getAuthUser - should fetch the user from the authentication context")

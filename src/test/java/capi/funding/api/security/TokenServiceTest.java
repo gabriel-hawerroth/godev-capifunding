@@ -7,6 +7,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,23 +26,27 @@ class TokenServiceTest {
     private static final String SECRET_KEY = "capi.funding.secret-token";
     private static final String TOKEN_ISSUER = "capifunding-api";
 
-    final User user = new User(
-            1L,
-            "test@gmail.com",
-            "encryptedPassword",
-            "testing",
-            true,
-            LocalDateTime.now().minusDays(82),
-            null
-    );
-
     private final TokenService tokenService;
-
     private final JwtService jwtService;
+
+    private User user;
 
     public TokenServiceTest() {
         this.jwtService = mock(JwtService.class);
         this.tokenService = new TokenService(this.jwtService, SECRET_KEY);
+    }
+
+    @BeforeEach
+    void setUp() {
+        user = new User(
+                1L,
+                "test@gmail.com",
+                "encryptedPassword",
+                "testing",
+                true,
+                LocalDateTime.now().minusDays(82),
+                null
+        );
     }
 
     @Test

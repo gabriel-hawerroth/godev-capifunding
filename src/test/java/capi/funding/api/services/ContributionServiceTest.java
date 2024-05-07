@@ -10,6 +10,7 @@ import capi.funding.api.infra.exceptions.InvalidParametersException;
 import capi.funding.api.infra.exceptions.NotFoundException;
 import capi.funding.api.repository.ContributionRepository;
 import capi.funding.api.utils.Utils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,31 +36,10 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ContributionServiceTest {
 
-    private final long projectId = 1;
+    private static final long projectId = 1;
 
-    private final Project project = new Project(
-            1L,
-            "test project",
-            "project description",
-            1,
-            ProjectCategoryEnum.TECHNOLOGY.getValue(),
-            ProjectStatusEnum.IN_PROGRESS.getValue(),
-            false,
-            LocalDateTime.now(),
-            LocalDate.now().plusDays(1),
-            LocalDate.now().plusDays(20),
-            null
-    );
-
-    private final User user = new User(
-            1L,
-            "test@gmail.com",
-            "encryptedPassword",
-            "testing",
-            true,
-            LocalDateTime.now().minusDays(82),
-            null
-    );
+    private Project project;
+    private User user;
 
     @InjectMocks
     private ContributionService service;
@@ -71,6 +51,33 @@ class ContributionServiceTest {
     private ContributionRepository repository;
     @Captor
     private ArgumentCaptor<Contribution> contributionCaptor;
+
+    @BeforeEach
+    void setUp() {
+        project = new Project(
+                1L,
+                "test project",
+                "project description",
+                1,
+                ProjectCategoryEnum.TECHNOLOGY.getValue(),
+                ProjectStatusEnum.IN_PROGRESS.getValue(),
+                false,
+                LocalDateTime.now(),
+                LocalDate.now().plusDays(1),
+                LocalDate.now().plusDays(20),
+                null
+        );
+
+        user = new User(
+                1L,
+                "test@gmail.com",
+                "encryptedPassword",
+                "testing",
+                true,
+                LocalDateTime.now().minusDays(82),
+                null
+        );
+    }
 
     @Test
     @DisplayName("findByProject - should validate that the project exists")

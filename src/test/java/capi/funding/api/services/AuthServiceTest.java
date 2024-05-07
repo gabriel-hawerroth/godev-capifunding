@@ -12,6 +12,7 @@ import capi.funding.api.infra.exceptions.WithoutPermissionException;
 import capi.funding.api.security.TokenService;
 import jakarta.mail.AuthenticationFailedException;
 import jakarta.mail.MessagingException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,16 +35,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
 
-    private final AuthenticationDTO authDTO = new AuthenticationDTO(
-            "test@gmail.com",
-            "Testing#01"
-    );
-
-    private final CreateUserDTO createUserDTO = new CreateUserDTO(
-            "test@gmail.com",
-            "Testing#01",
-            "test"
-    );
+    private AuthenticationDTO authDTO;
+    private CreateUserDTO createUserDTO;
 
     @InjectMocks
     private AuthService authService;
@@ -59,6 +52,20 @@ class AuthServiceTest {
     private UserService userService;
     @Captor
     private ArgumentCaptor<User> userCaptor;
+
+    @BeforeEach
+    void setUp() {
+        authDTO = new AuthenticationDTO(
+                "test@gmail.com",
+                "Testing#01"
+        );
+
+        createUserDTO = new CreateUserDTO(
+                "test@gmail.com",
+                "Testing#01",
+                "test"
+        );
+    }
 
     @Test
     @DisplayName("doLogin - should call authentication manager")

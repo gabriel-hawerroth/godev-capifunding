@@ -7,6 +7,7 @@ import capi.funding.api.infra.exceptions.InvalidParametersException;
 import capi.funding.api.infra.exceptions.MilestoneSequenceException;
 import capi.funding.api.infra.exceptions.ProjectEditabilityException;
 import capi.funding.api.services.ProjectMilestoneService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,25 +31,30 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ProjectUtilsTest {
 
-    private final Map<String, String> NON_EDITABLE_STATUS_MESSAGE = Map.of(
+    private static final Map<String, String> NON_EDITABLE_STATUS_MESSAGE = Map.of(
             "DONE", "this project has already been concluded and cannot be edited",
             "CANCELED", "this project has already been cancelled and cannot be edited"
     );
 
-    private final ProjectMilestone milestone = new ProjectMilestone(
-            1L,
-            1,
-            "milestone title",
-            "mileston description",
-            1,
-            false,
-            BigDecimal.valueOf(100)
-    );
+    private ProjectMilestone milestone;
 
     @InjectMocks
     private ProjectUtils projectUtils;
     @Mock
     private ProjectMilestoneService milestoneService;
+
+    @BeforeEach
+    void setUp() {
+        milestone = new ProjectMilestone(
+                1L,
+                1,
+                "milestone title",
+                "mileston description",
+                1,
+                false,
+                BigDecimal.valueOf(100)
+        );
+    }
 
     @Test
     @DisplayName("checkProjectEditability - shouldn't accept null parameters")

@@ -3,6 +3,7 @@ package capi.funding.api.services;
 import capi.funding.api.dto.CreateProjectDTO;
 import capi.funding.api.dto.EditProjectDTO;
 import capi.funding.api.dto.ProjectsListDTO;
+import capi.funding.api.dto.ProjectsListFiltersDTO;
 import capi.funding.api.entity.Project;
 import capi.funding.api.entity.ProjectMilestone;
 import capi.funding.api.enums.ProjectStatusEnum;
@@ -39,6 +40,16 @@ public class ProjectService {
 
     public List<ProjectsListDTO> getProjectsList() {
         return projectRepository.getProjectsList();
+    }
+
+    public List<ProjectsListDTO> getFilteredProjectsList(ProjectsListFiltersDTO filtersDTO) {
+        final ProjectsListFiltersDTO filters = projectUtils.buildFilters(filtersDTO);
+
+        return projectRepository.getFilteredProjectsList(
+                filters.getProjectTitle(),
+                filters.getProjectStatus(),
+                filters.getCreatorName()
+        );
     }
 
     public Project findById(long id) {
