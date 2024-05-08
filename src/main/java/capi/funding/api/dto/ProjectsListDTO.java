@@ -1,18 +1,9 @@
 package capi.funding.api.dto;
 
-@SuppressWarnings("unused")
-public interface ProjectsListDTO {
-    long getProjectId();
+import java.util.List;
 
-    String getProjectTitle();
-
-    byte[] getCoverImage();
-
-    String getCreatorName();
-
-    byte[] getCreatorProfileImage();
-
-    int getRemainingDays();
-
-    double getPercentageRaised();
+public record ProjectsListDTO(
+        Long totalRegisters,
+        List<ProjectsList> projectsLists
+) {
 }

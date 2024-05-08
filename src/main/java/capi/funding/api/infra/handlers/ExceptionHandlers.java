@@ -3,12 +3,16 @@ package capi.funding.api.infra.handlers;
 import capi.funding.api.dto.InvalidFieldsDTO;
 import capi.funding.api.dto.ResponseError;
 import capi.funding.api.infra.exceptions.*;
+import org.springframework.context.MessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.method.ParameterValidationResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
+import java.util.LinkedList;
 import java.util.List;
 
 @RestControllerAdvice
@@ -27,6 +31,26 @@ public class ExceptionHandlers {
 
         return ResponseEntity.badRequest().body(
                 errors.stream().map(InvalidFieldsDTO::new).toList()
+        );
+    }
+
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<?> handlerMethodValidationException(HandlerMethodValidationException ex) {
+        List<InvalidFieldsDTO> invalidFields = new LinkedList<>();
+
+        for (ParameterValidationResult error : ex.getAllValidationResults()) {
+            for (MessageSourceResolvable sourceResolvable : error.getResolvableErrors()) {
+                invalidFields.add(
+                        new InvalidFieldsDTO(
+                                error.getMethodParameter().getParameterName(),
+                                sourceResolvable.getDefaultMessage()
+                        )
+                );
+            }
+        }
+
+        return ResponseEntity.badRequest().body(
+                invalidFields
         );
     }
 

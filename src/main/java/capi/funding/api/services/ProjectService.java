@@ -1,11 +1,9 @@
 package capi.funding.api.services;
 
-import capi.funding.api.dto.CreateProjectDTO;
-import capi.funding.api.dto.EditProjectDTO;
-import capi.funding.api.dto.ProjectsListDTO;
-import capi.funding.api.dto.ProjectsListFiltersDTO;
+import capi.funding.api.dto.*;
 import capi.funding.api.entity.Project;
 import capi.funding.api.entity.ProjectMilestone;
+import capi.funding.api.entity.ProjectSearchLog;
 import capi.funding.api.enums.ProjectStatusEnum;
 import capi.funding.api.infra.exceptions.InvalidParametersException;
 import capi.funding.api.infra.exceptions.MilestoneSequenceException;
@@ -26,29 +24,40 @@ public class ProjectService {
 
     private final Utils utils;
     private final ProjectUtils projectUtils;
+
     private final ProjectMilestoneService milestoneService;
+    private final ProjectSearchLogService searchLogService;
 
     private final ProjectRepository projectRepository;
 
     @Lazy
-    public ProjectService(ProjectRepository projectRepository, ProjectMilestoneService milestoneService, Utils utils, ProjectUtils projectUtils) {
-        this.projectRepository = projectRepository;
-        this.milestoneService = milestoneService;
+    public ProjectService(Utils utils, ProjectUtils projectUtils, ProjectMilestoneService milestoneService, ProjectSearchLogService searchLogService, ProjectRepository projectRepository) {
         this.utils = utils;
         this.projectUtils = projectUtils;
+        this.milestoneService = milestoneService;
+        this.searchLogService = searchLogService;
+        this.projectRepository = projectRepository;
     }
 
-    public List<ProjectsListDTO> getProjectsList() {
-        return projectRepository.getProjectsList();
-    }
+    public ProjectsListDTO getProjectsList(ProjectsListFiltersDTO filters) {
+        projectUtils.buildFilters(filters);
+        projectUtils.logProjectSearch(filters);
 
-    public List<ProjectsListDTO> getFilteredProjectsList(ProjectsListFiltersDTO filtersDTO) {
-        final ProjectsListFiltersDTO filters = projectUtils.buildFilters(filtersDTO);
-
-        return projectRepository.getFilteredProjectsList(
-                filters.getProjectTitle(),
-                filters.getProjectStatus(),
-                filters.getCreatorName()
+        return new ProjectsListDTO(
+                projectRepository.getTotalRegistersProjectsList(
+                        filters.getProjectTitle(),
+                        filters.getProjectCategory(),
+                        filters.getProjectStatus(),
+                        filters.getCreatorName()
+                ),
+                projectRepository.getProjectsList(
+                        filters.getProjectTitle(),
+                        filters.getProjectCategory(),
+                        filters.getProjectStatus(),
+                        filters.getCreatorName(),
+                        filters.getPageNumber(),
+                        filters.getLimit()
+                )
         );
     }
 
@@ -56,6 +65,13 @@ public class ProjectService {
         if (id < 1) {
             throw new InvalidParametersException("id must be valid");
         }
+
+        searchLogService.save(new ProjectSearchLog(
+                utils.getAuthUser().getId(),
+                "id",
+                String.valueOf(id),
+                LocalDateTime.now()
+        ));
 
         return projectRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("project not found"));
@@ -170,5 +186,13 @@ public class ProjectService {
         )));
 
         projectRepository.saveAll(projects);
+    }
+
+    public long countTotalProjects() {
+        return projectRepository.count();
+    }
+
+    public List<ProjectsList> getByMostSearchedProjects() {
+        return projectRepository.getMostSearchedProjects(0L, 10L);
     }
 }

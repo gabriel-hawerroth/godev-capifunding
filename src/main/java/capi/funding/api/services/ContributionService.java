@@ -71,4 +71,12 @@ public class ContributionService {
             throw new InvalidParametersException("cannot contribute to a project with status 'paused', 'completed' or 'canceled'");
         }
     }
+
+    public BigDecimal getTotalRaised() {
+        return contributionRepository.countTotalRaised();
+    }
+
+    public long getTotalContributions() {
+        return contributionRepository.count();
+    }
 }

@@ -11,6 +11,9 @@ import java.util.List;
 @AllArgsConstructor
 public final class ProjectsListFiltersDTO {
     private String projectTitle;
+    private List<Integer> projectCategory;
     private List<Integer> projectStatus;
     private String creatorName;
+    private Long pageNumber;
+    private Long limit;
 }

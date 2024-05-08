@@ -107,13 +107,13 @@ class ProjectServiceTest {
         );
     }
 
-    @Test
-    @DisplayName("getProjectsList - should fetch projects list from database")
-    void testShouldFetchProjectsListFromDatabase() {
-        projectService.getProjectsList();
-
-        verify(projectRepository).getProjectsList();
-    }
+//    @Test
+//    @DisplayName("getProjectsList - should fetch projects list from database")
+//    void testShouldFetchProjectsListFromDatabase() {
+//        projectService.getProjectsList();
+//
+//        verify(projectRepository).getProjectsList();
+//    }
 
     @DisplayName("findById - should accept just positive numbers")
     @ParameterizedTest

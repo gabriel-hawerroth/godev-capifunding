@@ -3,16 +3,21 @@ package capi.funding.api.utils;
 import capi.funding.api.dto.ProjectsListFiltersDTO;
 import capi.funding.api.entity.Project;
 import capi.funding.api.entity.ProjectMilestone;
+import capi.funding.api.entity.ProjectSearchLog;
+import capi.funding.api.enums.ProjectSearchFields;
 import capi.funding.api.enums.ProjectStatusEnum;
 import capi.funding.api.infra.exceptions.InvalidParametersException;
 import capi.funding.api.infra.exceptions.MilestoneSequenceException;
 import capi.funding.api.infra.exceptions.ProjectEditabilityException;
 import capi.funding.api.services.ProjectMilestoneService;
+import capi.funding.api.services.ProjectSearchLogService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,7 +25,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ProjectUtils {
 
+    private final Utils utils;
     private final ProjectMilestoneService projectMilestoneService;
+    private final ProjectSearchLogService searchLogService;
 
     public void checkProjectEditability(@NonNull Project project) {
         final long projectStatusId = project.getStatus_id();
@@ -62,13 +69,17 @@ public class ProjectUtils {
         }
     }
 
-    public ProjectsListFiltersDTO buildFilters(ProjectsListFiltersDTO filters) {
+    public void buildFilters(ProjectsListFiltersDTO filters) {
         if (filters.getProjectTitle() == null || filters.getProjectTitle().isBlank()) {
             filters.setProjectTitle("");
         } else {
             filters.setProjectTitle(
                     "%".concat(filters.getProjectTitle().trim().toLowerCase()).concat("%")
             );
+        }
+
+        if (filters.getProjectCategory() == null) {
+            filters.setProjectCategory(Collections.emptyList());
         }
 
         if (filters.getProjectStatus() == null) {
@@ -83,6 +94,46 @@ public class ProjectUtils {
             );
         }
 
-        return filters;
+        filters.setPageNumber(
+                (filters.getPageNumber() - 1) * filters.getLimit()
+        );
+    }
+
+    public void logProjectSearch(ProjectsListFiltersDTO filters) {
+        List<ProjectSearchLog> searchLogs = new LinkedList<>();
+
+        final long userId = utils.getAuthUser().getId();
+        final LocalDateTime now = LocalDateTime.now();
+
+        if (filters.getProjectTitle() != null && !filters.getProjectTitle().isBlank()) {
+            addFilterLog(searchLogs, userId, ProjectSearchFields.PROJECT_TITLE.getValue(), filters.getProjectTitle(), now);
+        }
+
+        if (!filters.getProjectCategory().isEmpty()) {
+            for (Integer categoryId : filters.getProjectCategory()) {
+                addFilterLog(searchLogs, userId, ProjectSearchFields.PROJECT_CATEGORY.getValue(), categoryId.toString(), now);
+            }
+        }
+
+        if (!filters.getProjectStatus().isEmpty()) {
+            for (Integer statusId : filters.getProjectStatus()) {
+                addFilterLog(searchLogs, userId, ProjectSearchFields.PROJECT_STATUS.getValue(), statusId.toString(), now);
+            }
+        }
+
+        if (filters.getCreatorName() != null && !filters.getCreatorName().isBlank()) {
+            addFilterLog(searchLogs, userId, ProjectSearchFields.CREATOR_NAME.getValue(), filters.getCreatorName(), now);
+        }
+
+        searchLogService.saveAll(searchLogs);
+    }
+
+    private void addFilterLog(List<ProjectSearchLog> searchLogs, long userId, String filterName, String filterValue, LocalDateTime now) {
+        searchLogs.add(new ProjectSearchLog(
+                userId,
+                filterName,
+                filterValue,
+                now
+        ));
     }
 }

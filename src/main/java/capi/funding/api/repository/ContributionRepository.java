@@ -4,6 +4,7 @@ import capi.funding.api.entity.Contribution;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface ContributionRepository extends JpaRepository<Contribution, Long> {
@@ -19,4 +20,12 @@ public interface ContributionRepository extends JpaRepository<Contribution, Long
                 c.date desc
             """, nativeQuery = true)
     List<Contribution> findByProject(long projectId);
+
+    @Query(value = """
+            SELECT
+                SUM(c.value)
+            FROM
+                contribution c
+            """, nativeQuery = true)
+    BigDecimal countTotalRaised();
 }
