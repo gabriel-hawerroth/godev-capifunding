@@ -1,5 +1,6 @@
 package capi.funding.api.repository;
 
+import capi.funding.api.dto.MostSearchedCategoriesDTO;
 import capi.funding.api.dto.ProjectsList;
 import capi.funding.api.entity.Project;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -80,31 +81,41 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     List<Project> findProjectsEndingYesterdayNotCancelled(LocalDate yesterday);
 
     @Query(value = """
-            SELECT
-            	p.id AS projectId,
-                p.title AS projectTitle,
-                p.cover_image AS coverImage,
-                u.name AS creatorName,
-                u.profile_image AS creatorProfileImage,
-                GREATEST(p.final_date - current_date, 0) AS remainingDays,
-                get_project_percentage_raised(p.id) AS percentageRaised,
-                pc.name AS category,
-                ps.description AS status
-            FROM
-            	project p
-                JOIN users u ON p.creator_id = u.id
-                JOIN project_category pc ON p.category_id = pc.id
-                JOIN project_status ps ON p.status_id = ps.id
-            ORDER BY
-            	(
-            	SELECT COUNT(*)
-            	FROM project_search_log psl
-            	WHERE
-            		(psl.filter_name = 'id' AND psl.filter_value = p.id::text)
-            		OR (psl.filter_name = 'project_title' AND p.title LIKE psl.filter_value)
-            	) DESC
-            OFFSET :offset
-            LIMIT :limit
+            SELECT *
+            FROM get_most_searched_projects(:pageNumber)
             """, nativeQuery = true)
-    List<ProjectsList> getMostSearchedProjects(long offset, long limit);
+    List<ProjectsList> getMostSearchedProjects(int pageNumber);
+
+    @Query(value = """
+            SELECT *
+            FROM count_total_searched_projects()
+            """, nativeQuery = true)
+    long countTotalSearchedProjects();
+
+    @Query(value = """
+            SELECT *
+            FROM get_top_donated_projects(:pageNumber);
+            """, nativeQuery = true)
+    List<ProjectsList> getTopDonatedProjects(int pageNumber);
+
+    @Query(value = """
+            SELECT *
+            FROM count_total_donated_projects();
+            """, nativeQuery = true)
+    long countTotalDonatedProjects();
+
+    @Query(value = """
+            SELECT
+            	pc.name AS categoryName,
+            	COUNT(pc.id) AS totalSearchs
+            FROM
+            	project_search_log psl
+            	JOIN project_category pc
+            	    ON (psl.filter_name = 'project_category' AND CAST(psl.filter_value AS integer) = pc.id)
+            GROUP BY
+            	categoryName
+            ORDER BY
+            	totalSearchs DESC
+            """, nativeQuery = true)
+    List<MostSearchedCategoriesDTO> getMostSearchedCategories();
 }

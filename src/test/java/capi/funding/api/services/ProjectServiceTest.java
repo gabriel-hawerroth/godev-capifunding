@@ -2,6 +2,8 @@ package capi.funding.api.services;
 
 import capi.funding.api.dto.CreateProjectDTO;
 import capi.funding.api.dto.EditProjectDTO;
+import capi.funding.api.dto.ProjectsListDTO;
+import capi.funding.api.dto.ProjectsListFiltersDTO;
 import capi.funding.api.entity.Project;
 import capi.funding.api.entity.ProjectMilestone;
 import capi.funding.api.entity.User;
@@ -45,6 +47,7 @@ class ProjectServiceTest {
     private EditProjectDTO editProjectDTO;
     private ProjectMilestone projectMilestone;
     private User user;
+    private ProjectsListFiltersDTO filtersDTO;
 
     @InjectMocks
     private ProjectService projectService;
@@ -56,6 +59,8 @@ class ProjectServiceTest {
     private ProjectMilestoneService milestoneService;
     @Mock
     private ProjectRepository projectRepository;
+    @Mock
+    private ProjectSearchLogService searchLogService;
     @Captor
     private ArgumentCaptor<Project> projectCaptor;
     @Captor
@@ -105,15 +110,54 @@ class ProjectServiceTest {
                 LocalDateTime.now().minusDays(40),
                 null
         );
+
+        filtersDTO = new ProjectsListFiltersDTO(
+                "",
+                Collections.emptyList(),
+                Collections.emptyList(),
+                "",
+                1L,
+                10L
+        );
     }
 
-//    @Test
-//    @DisplayName("getProjectsList - should fetch projects list from database")
-//    void testShouldFetchProjectsListFromDatabase() {
-//        projectService.getProjectsList();
-//
-//        verify(projectRepository).getProjectsList();
-//    }
+    @Test
+    @DisplayName("getProjectsList - should log project search")
+    void testGetProjectsListShouldLogProjectSearch() {
+        projectService.getProjectsList(filtersDTO);
+
+        verify(projectUtils).logProjectSearch(filtersDTO);
+    }
+
+    @Test
+    @DisplayName("getProjectsList - should build the filters")
+    void testGetProjectsListShouldBuildTheFilters() {
+        projectService.getProjectsList(filtersDTO);
+
+        verify(projectUtils).buildFilters(filtersDTO);
+    }
+
+    @Test
+    @DisplayName("getProjectsList - should fetch projects list from database")
+    void testShouldFetchProjectsListFromDatabase() {
+        projectService.getProjectsList(filtersDTO);
+
+        verify(projectRepository).getTotalRegistersProjectsList(
+                filtersDTO.getProjectTitle(),
+                filtersDTO.getProjectCategory(),
+                filtersDTO.getProjectStatus(),
+                filtersDTO.getCreatorName()
+        );
+
+        verify(projectRepository).getProjectsList(
+                filtersDTO.getProjectTitle(),
+                filtersDTO.getProjectCategory(),
+                filtersDTO.getProjectStatus(),
+                filtersDTO.getCreatorName(),
+                filtersDTO.getPageNumber(),
+                filtersDTO.getLimit()
+        );
+    }
 
     @DisplayName("findById - should accept just positive numbers")
     @ParameterizedTest
@@ -134,6 +178,7 @@ class ProjectServiceTest {
         final long projectId = 1;
 
         when(projectRepository.findById(projectId)).thenReturn(Optional.empty());
+        when(utils.getAuthUser()).thenReturn(user);
 
         final NotFoundException exception = assertThrows(NotFoundException.class, () ->
                 projectService.findById(projectId));
@@ -214,6 +259,7 @@ class ProjectServiceTest {
         final long projectId = 1;
 
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
+        when(utils.getAuthUser()).thenReturn(user);
 
         projectService.edit(projectId, editProjectDTO);
 
@@ -226,6 +272,7 @@ class ProjectServiceTest {
         final long projectId = 1;
 
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
+        when(utils.getAuthUser()).thenReturn(user);
 
         projectService.edit(projectId, editProjectDTO);
 
@@ -247,6 +294,7 @@ class ProjectServiceTest {
 
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
         when(milestoneService.findByProject(projectId)).thenReturn(Collections.emptyList());
+        when(utils.getAuthUser()).thenReturn(user);
 
         assertDoesNotThrow(() -> projectService.edit(projectId, editProjectDTO1));
     }
@@ -257,6 +305,7 @@ class ProjectServiceTest {
         final long projectId = 1;
 
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
+        when(utils.getAuthUser()).thenReturn(user);
 
         projectService.edit(projectId, editProjectDTO);
 
@@ -294,6 +343,7 @@ class ProjectServiceTest {
 
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
         when(milestoneService.findByProject(projectId)).thenReturn(projectMilestones);
+        when(utils.getAuthUser()).thenReturn(user);
 
         final MilestoneSequenceException exception = assertThrows(MilestoneSequenceException.class, () ->
                 projectService.edit(projectId, editProjectDTO1));
@@ -334,6 +384,7 @@ class ProjectServiceTest {
 
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
         when(milestoneService.findByProject(projectId)).thenReturn(projectMilestones);
+        when(utils.getAuthUser()).thenReturn(user);
 
         assertDoesNotThrow(() -> projectService.edit(projectId, editProjectDTO1));
 
@@ -348,6 +399,7 @@ class ProjectServiceTest {
     void testAddCoverImageShouldCheckUserPermission() {
         final long projectId = 1;
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
+        when(utils.getAuthUser()).thenReturn(user);
 
         projectService.addCoverImage(projectId, mock(MockMultipartFile.class));
 
@@ -359,6 +411,7 @@ class ProjectServiceTest {
     void testAddCoverImageShouldCheckProjectEditability() {
         final long projectId = 1;
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
+        when(utils.getAuthUser()).thenReturn(user);
 
         projectService.addCoverImage(projectId, mock(MockMultipartFile.class));
 
@@ -370,6 +423,7 @@ class ProjectServiceTest {
     void testAddCoverImageShouldCompressTheImage() {
         final long projectId = 1;
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
+        when(utils.getAuthUser()).thenReturn(user);
 
         final var mockFile = mock(MockMultipartFile.class);
 
@@ -387,6 +441,7 @@ class ProjectServiceTest {
 
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
         when(utils.checkImageValidityAndCompress(mockFile)).thenReturn(new byte[100000]);
+        when(utils.getAuthUser()).thenReturn(user);
 
         projectService.addCoverImage(projectId, mockFile);
 
@@ -398,6 +453,7 @@ class ProjectServiceTest {
     void testRemoveCoverImageShouldCheckUserPermission() {
         final long projectId = 1;
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
+        when(utils.getAuthUser()).thenReturn(user);
 
         projectService.removeCoverImage(projectId);
 
@@ -409,6 +465,7 @@ class ProjectServiceTest {
     void testRemoveCoverImageShouldCheckProjectEditability() {
         final long projectId = 1;
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
+        when(utils.getAuthUser()).thenReturn(user);
 
         projectService.removeCoverImage(projectId);
 
@@ -420,6 +477,7 @@ class ProjectServiceTest {
     void testShouldSetProjectCoverImageToNullAndSave() {
         final long projectId = 1;
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
+        when(utils.getAuthUser()).thenReturn(user);
 
         projectService.removeCoverImage(projectId);
 
@@ -433,6 +491,7 @@ class ProjectServiceTest {
     void testConcludeShouldCheckUserPermission() {
         final long projectId = 1;
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
+        when(utils.getAuthUser()).thenReturn(user);
 
         projectService.conclude(projectId);
 
@@ -444,6 +503,7 @@ class ProjectServiceTest {
     void testConcludeShouldCheckProjectEditability() {
         final long projectId = 1;
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
+        when(utils.getAuthUser()).thenReturn(user);
 
         projectService.conclude(projectId);
 
@@ -455,6 +515,7 @@ class ProjectServiceTest {
     void testShouldSetStatusToDoneAndSave() {
         final long projectId = 1;
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
+        when(utils.getAuthUser()).thenReturn(user);
 
         projectService.conclude(projectId);
 
@@ -471,6 +532,7 @@ class ProjectServiceTest {
     void testCancelShouldCheckUserPermission() {
         final long projectId = 1;
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
+        when(utils.getAuthUser()).thenReturn(user);
 
         projectService.cancel(projectId);
 
@@ -482,6 +544,7 @@ class ProjectServiceTest {
     void testCancelShouldCheckProjectEditability() {
         final long projectId = 1;
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
+        when(utils.getAuthUser()).thenReturn(user);
 
         projectService.cancel(projectId);
 
@@ -493,6 +556,7 @@ class ProjectServiceTest {
     void testShouldSetStatusToCanceledAndSave() {
         final long projectId = 1;
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
+        when(utils.getAuthUser()).thenReturn(user);
 
         projectService.cancel(projectId);
 
@@ -545,5 +609,39 @@ class ProjectServiceTest {
                     project1.getStatus_id()
             );
         }
+    }
+
+    @Test
+    @DisplayName("countTotalProjects - should fetch the database")
+    void testCountTotalProjectsShouldFetchTheDatabase() {
+        projectService.countTotalProjects();
+
+        verify(projectRepository).count();
+    }
+
+    @Test
+    @DisplayName("getMostSearchedProjects - should fetch the database")
+    void testGetMostSearchedProjectsShouldFetchTheDatabase() {
+        final var mostSearchedProjects = assertDoesNotThrow(() ->
+                projectService.getMostSearchedProjects(1));
+
+        assertInstanceOf(ProjectsListDTO.class, mostSearchedProjects);
+    }
+
+    @Test
+    @DisplayName("getTopDonatedProjects - should fetch the database")
+    void testGetTopDonatedProjectsShouldFetchTheDatabase() {
+        final var topDonatedProjects = assertDoesNotThrow(() ->
+                projectService.getTopDonatedProjects(1));
+
+        assertInstanceOf(ProjectsListDTO.class, topDonatedProjects);
+    }
+
+    @Test
+    @DisplayName("getMostSearchedCategories - should fetch the database")
+    void testGetMostSearchedCategoriesShouldFetchTheDatabase() {
+        projectService.getMostSearchedCategories();
+
+        verify(projectRepository).getMostSearchedCategories();
     }
 }

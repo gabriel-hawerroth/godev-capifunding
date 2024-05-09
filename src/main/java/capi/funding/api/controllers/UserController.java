@@ -51,9 +51,4 @@ public class UserController {
                 service.removeProfileImage()
         );
     }
-
-    @GetMapping("/teste")
-    public void teste() {
-        service.teste(new User());
-    }
 }

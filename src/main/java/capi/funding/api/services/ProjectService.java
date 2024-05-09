@@ -192,7 +192,21 @@ public class ProjectService {
         return projectRepository.count();
     }
 
-    public List<ProjectsList> getByMostSearchedProjects() {
-        return projectRepository.getMostSearchedProjects(0L, 10L);
+    public ProjectsListDTO getMostSearchedProjects(int pageNumber) {
+        return new ProjectsListDTO(
+                projectRepository.countTotalSearchedProjects(),
+                projectRepository.getMostSearchedProjects(pageNumber)
+        );
+    }
+
+    public ProjectsListDTO getTopDonatedProjects(int pageNumber) {
+        return new ProjectsListDTO(
+                projectRepository.countTotalDonatedProjects(),
+                projectRepository.getTopDonatedProjects(pageNumber)
+        );
+    }
+
+    public List<MostSearchedCategoriesDTO> getMostSearchedCategories() {
+        return projectRepository.getMostSearchedCategories();
     }
 }

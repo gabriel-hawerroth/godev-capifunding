@@ -1,12 +1,11 @@
 package capi.funding.api.services;
 
 import capi.funding.api.dto.GeneralInfosReportDTO;
+import capi.funding.api.dto.MostSearchedCategoriesDTO;
 import capi.funding.api.dto.ProjectsListDTO;
-import capi.funding.api.entity.MostSearchedCategoriesDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -20,22 +19,19 @@ public class ProjectReportsService {
         return new GeneralInfosReportDTO(
                 projectService.countTotalProjects(),
                 contributionService.getTotalRaised(),
-                contributionService.getTotalContributions()
+                contributionService.countTotalContributions()
         );
     }
 
-    public ProjectsListDTO getMostSearchedProjects() {
-        return new ProjectsListDTO(
-                1L,
-                projectService.getByMostSearchedProjects()
-        );
+    public ProjectsListDTO getMostSearchedProjects(int pageNumber) {
+        return projectService.getMostSearchedProjects(pageNumber);
     }
 
-    public ProjectsListDTO getTopDonatedProjects() {
-        return null;
+    public ProjectsListDTO getTopDonatedProjects(int pageNumber) {
+        return projectService.getTopDonatedProjects(pageNumber);
     }
 
     public List<MostSearchedCategoriesDTO> getMostSearchedCategories() {
-        return Collections.emptyList();
+        return projectService.getMostSearchedCategories();
     }
 }

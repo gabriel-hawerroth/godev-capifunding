@@ -23,7 +23,7 @@ public interface ContributionRepository extends JpaRepository<Contribution, Long
 
     @Query(value = """
             SELECT
-                SUM(c.value)
+                COALESCE(SUM(c.value), 0)
             FROM
                 contribution c
             """, nativeQuery = true)

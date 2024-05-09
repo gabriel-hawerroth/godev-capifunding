@@ -87,8 +87,4 @@ public class UserService {
             throw new DataIntegrityException("this user has linked registers, impossible to exclude");
         }
     }
-
-    public void teste(User user) {
-        utils.validateObject(user);
-    }
 }

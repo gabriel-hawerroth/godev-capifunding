@@ -94,6 +94,14 @@ public class ProjectUtils {
             );
         }
 
+        if (filters.getLimit() == null) {
+            filters.setLimit(10L);
+        }
+
+        if (filters.getPageNumber() == null) {
+            filters.setPageNumber(1L);
+        }
+
         filters.setPageNumber(
                 (filters.getPageNumber() - 1) * filters.getLimit()
         );
@@ -105,7 +113,7 @@ public class ProjectUtils {
         final long userId = utils.getAuthUser().getId();
         final LocalDateTime now = LocalDateTime.now();
 
-        if (filters.getProjectTitle() != null && !filters.getProjectTitle().isBlank()) {
+        if (filters.getProjectTitle() != null && !filters.getProjectTitle().isBlank() && filters.getProjectTitle().length() > 4) {
             addFilterLog(searchLogs, userId, ProjectSearchFields.PROJECT_TITLE.getValue(), filters.getProjectTitle(), now);
         }
 
@@ -121,7 +129,7 @@ public class ProjectUtils {
             }
         }
 
-        if (filters.getCreatorName() != null && !filters.getCreatorName().isBlank()) {
+        if (filters.getCreatorName() != null && !filters.getCreatorName().isBlank() && filters.getCreatorName().length() > 4) {
             addFilterLog(searchLogs, userId, ProjectSearchFields.CREATOR_NAME.getValue(), filters.getCreatorName(), now);
         }
 

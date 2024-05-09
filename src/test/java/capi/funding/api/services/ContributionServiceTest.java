@@ -211,4 +211,20 @@ class ContributionServiceTest {
 
         assertEquals(userId, contributionCaptor.getValue().getUser_id());
     }
+
+    @Test
+    @DisplayName("getTotalRaised - should fetch the database")
+    void testGetTotalRaisedShouldFetchTheDatabase() {
+        service.getTotalRaised();
+
+        verify(repository).countTotalRaised();
+    }
+
+    @Test
+    @DisplayName("countTotalContributions - should fetch the database")
+    void testCountTotalContributionsShouldFetchTheDatabase() {
+        service.countTotalContributions();
+
+        verify(repository).count();
+    }
 }

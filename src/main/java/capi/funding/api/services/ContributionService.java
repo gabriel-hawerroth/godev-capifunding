@@ -76,7 +76,7 @@ public class ContributionService {
         return contributionRepository.countTotalRaised();
     }
 
-    public long getTotalContributions() {
+    public long countTotalContributions() {
         return contributionRepository.count();
     }
 }

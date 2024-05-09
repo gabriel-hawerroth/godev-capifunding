@@ -1,5 +1,6 @@
 package capi.funding.api.utils;
 
+import capi.funding.api.dto.ProjectsListFiltersDTO;
 import capi.funding.api.entity.Project;
 import capi.funding.api.entity.ProjectMilestone;
 import capi.funding.api.enums.ProjectStatusEnum;
@@ -37,6 +38,7 @@ class ProjectUtilsTest {
     );
 
     private ProjectMilestone milestone;
+    private ProjectsListFiltersDTO filtersDTO;
 
     @InjectMocks
     private ProjectUtils projectUtils;
@@ -53,6 +55,15 @@ class ProjectUtilsTest {
                 1,
                 false,
                 BigDecimal.valueOf(100)
+        );
+
+        filtersDTO = new ProjectsListFiltersDTO(
+                "",
+                Collections.emptyList(),
+                Collections.emptyList(),
+                "",
+                1L,
+                10L
         );
     }
 
@@ -193,5 +204,69 @@ class ProjectUtilsTest {
                 projectUtils.validateNeedToFollowOrder(project, milestone));
 
         assertEquals("the milestones of this project need to be completed in the sequence", ex.getMessage());
+    }
+
+    @Test
+    @DisplayName("buildFilters - shouldn't return any null value")
+    void testBuildFiltersShouldntReturnAnyNullValue() {
+        final ProjectsListFiltersDTO filters = new ProjectsListFiltersDTO(
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+        projectUtils.buildFilters(filters);
+
+        assertAll("non null values",
+                () -> assertNotNull(filters.getProjectTitle()),
+                () -> assertNotNull(filters.getProjectCategory()),
+                () -> assertNotNull(filters.getProjectStatus()),
+                () -> assertNotNull(filters.getCreatorName()),
+                () -> assertNotNull(filters.getPageNumber()),
+                () -> assertNotNull(filters.getLimit())
+        );
+    }
+
+    @Test
+    @DisplayName("buildFilters - shouldnt have any blank value")
+    public void testBuildFiltersBlankValues() {
+        ProjectsListFiltersDTO filters = new ProjectsListFiltersDTO(
+                "   ",
+                null,
+                null,
+                "   ",
+                null,
+                null
+        );
+        filters.setProjectTitle("   ");
+        filters.setCreatorName("   ");
+
+        projectUtils.buildFilters(filters);
+
+        assertEquals("", filters.getProjectTitle());
+        assertEquals("", filters.getCreatorName());
+    }
+
+    @Test
+    public void testBuildFiltersValidValues() {
+        ProjectsListFiltersDTO filters = new ProjectsListFiltersDTO(
+                "My Project",
+                List.of(1, 2),
+                List.of(1, 3),
+                "John Doe",
+                2L,
+                10L
+        );
+
+        projectUtils.buildFilters(filters);
+
+        assertEquals("%my project%", filters.getProjectTitle());
+        assertEquals("%john doe%", filters.getCreatorName());
+        assertEquals(List.of(1, 2), filters.getProjectCategory());
+        assertEquals(List.of(1, 3), filters.getProjectStatus());
+        assertEquals(10, filters.getPageNumber());
+        assertEquals(10L, filters.getLimit());
     }
 }

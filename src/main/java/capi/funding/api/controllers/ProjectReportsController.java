@@ -1,9 +1,10 @@
 package capi.funding.api.controllers;
 
 import capi.funding.api.dto.GeneralInfosReportDTO;
+import capi.funding.api.dto.MostSearchedCategoriesDTO;
 import capi.funding.api.dto.ProjectsListDTO;
-import capi.funding.api.entity.MostSearchedCategoriesDTO;
 import capi.funding.api.services.ProjectReportsService;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +21,7 @@ public class ProjectReportsController {
 
     private final ProjectReportsService service;
 
-    @GetMapping("/general-infos")
+    @GetMapping("/generic-infos")
     public ResponseEntity<GeneralInfosReportDTO> getGeneralInfosReport() {
         return ResponseEntity.ok(
                 service.getGeneralInfosReport()
@@ -28,16 +29,20 @@ public class ProjectReportsController {
     }
 
     @GetMapping("/most-searched")
-    public ResponseEntity<ProjectsListDTO> getMostSearchedProjects(@RequestParam(defaultValue = "1") Long pageNumber) {
+    public ResponseEntity<ProjectsListDTO> getMostSearchedProjects(
+            @RequestParam(defaultValue = "1") @Positive int pageNumber
+    ) {
         return ResponseEntity.ok(
-                service.getMostSearchedProjects()
+                service.getMostSearchedProjects(pageNumber)
         );
     }
 
     @GetMapping("/top-donated")
-    public ResponseEntity<ProjectsListDTO> getTopDonatedProjects() {
+    public ResponseEntity<ProjectsListDTO> getTopDonatedProjects(
+            @RequestParam(defaultValue = "1") @Positive int pageNumber
+    ) {
         return ResponseEntity.ok(
-                service.getTopDonatedProjects()
+                service.getTopDonatedProjects(pageNumber)
         );
     }
 

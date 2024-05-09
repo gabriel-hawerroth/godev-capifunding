@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 
 public record GeneralInfosReportDTO(
         @PositiveOrZero
-        long totalProjects,
+        Long totalProjects,
 
         @NotNull
         @PositiveOrZero
@@ -16,6 +16,6 @@ public record GeneralInfosReportDTO(
         BigDecimal totalRaised,
 
         @PositiveOrZero
-        long totalContributions
+        Long totalContributions
 ) {
 }
