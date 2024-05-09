@@ -33,7 +33,7 @@ public class EmailService {
     }
 
     public String buildEmailTemplate(@NonNull EmailType emailType, long userId, @NonNull String token) {
-        final String url = "http://localhost:8080/auth/" + emailType.getValue() + "/" + userId + "/" + token;
+        final String url = "http://localhost:8082/auth/" + emailType.getValue() + "/" + userId + "/" + token;
 
         final String action = switch (emailType) {
             case ACTIVATE_ACCOUNT -> " ativar sua conta.";

@@ -20,7 +20,7 @@ public record CreateProjectMilestoneDTO(
         String description,
 
         @Min(value = 1)
-        @Max(value = 32767, message = "sequence out of valid range")
+        @Max(value = 32767, message = "sequência fora do range válido")
         Integer sequence,
 
         Boolean completed,

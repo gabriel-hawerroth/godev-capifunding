@@ -117,13 +117,13 @@ public class ProjectUtils {
             addFilterLog(searchLogs, userId, ProjectSearchFields.PROJECT_TITLE.getValue(), filters.getProjectTitle(), now);
         }
 
-        if (!filters.getProjectCategory().isEmpty()) {
+        if (filters.getProjectCategory() != null && !filters.getProjectCategory().isEmpty()) {
             for (Integer categoryId : filters.getProjectCategory()) {
                 addFilterLog(searchLogs, userId, ProjectSearchFields.PROJECT_CATEGORY.getValue(), categoryId.toString(), now);
             }
         }
 
-        if (!filters.getProjectStatus().isEmpty()) {
+        if (filters.getProjectStatus() != null && !filters.getProjectStatus().isEmpty()) {
             for (Integer statusId : filters.getProjectStatus()) {
                 addFilterLog(searchLogs, userId, ProjectSearchFields.PROJECT_STATUS.getValue(), statusId.toString(), now);
             }
@@ -133,7 +133,9 @@ public class ProjectUtils {
             addFilterLog(searchLogs, userId, ProjectSearchFields.CREATOR_NAME.getValue(), filters.getCreatorName(), now);
         }
 
-        searchLogService.saveAll(searchLogs);
+        if (!searchLogs.isEmpty()) {
+            searchLogService.saveAll(searchLogs);
+        }
     }
 
     private void addFilterLog(List<ProjectSearchLog> searchLogs, long userId, String filterName, String filterValue, LocalDateTime now) {

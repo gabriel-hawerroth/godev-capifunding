@@ -8,11 +8,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.MessageSourceResolvable;
+import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.method.ParameterValidationResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
 import java.util.List;
 import java.util.Objects;
@@ -20,13 +24,14 @@ import java.util.Objects;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 class ExceptionHandlersTest {
 
     @InjectMocks
-    ExceptionHandlers exceptionHandlers;
+    private ExceptionHandlers exceptionHandlers;
 
     @Test
     @DisplayName("exception - general exception should return internal server error")
@@ -53,6 +58,45 @@ class ExceptionHandlersTest {
         );
 
         assertEquals(HttpStatusCode.valueOf(400), response.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("handlerMethodValidationException - should return bad request response")
+    void testHandlerMethodValidationExceptionShouldReturnBadRequestResponse() {
+        final var response = exceptionHandlers.handlerMethodValidationException(
+                mock(HandlerMethodValidationException.class)
+        );
+
+        assertEquals(HttpStatusCode.valueOf(400), response.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("handlerMethodValidationException - should return the invalid fields dto")
+    void testHandlerMethodValidationException() {
+        var handlerMethodValidationException = mock(HandlerMethodValidationException.class);
+        var parameterValidationResult = mock(ParameterValidationResult.class);
+        var messageSourceResolvable = mock(MessageSourceResolvable.class);
+        var methodParameter = mock(MethodParameter.class);
+
+        when(methodParameter.getParameterName()).thenReturn("invalid field");
+        when(parameterValidationResult.getMethodParameter()).thenReturn(methodParameter);
+        when(messageSourceResolvable.getDefaultMessage()).thenReturn("what is invalid in the field");
+
+        when(parameterValidationResult.getResolvableErrors()).thenReturn(
+                List.of(messageSourceResolvable, messageSourceResolvable)
+        );
+
+        when(handlerMethodValidationException.getAllValidationResults()).thenReturn(
+                List.of(parameterValidationResult, parameterValidationResult, parameterValidationResult)
+        );
+
+        var response = exceptionHandlers.handlerMethodValidationException(
+                handlerMethodValidationException
+        );
+
+        assertInstanceOf(List.class, response.getBody());
+        assertInstanceOf(InvalidFieldsDTO.class, response.getBody().get(0));
+        assertEquals(6, response.getBody().size());
     }
 
     @Test

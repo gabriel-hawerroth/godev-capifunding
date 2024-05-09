@@ -35,7 +35,7 @@ public class ExceptionHandlers {
     }
 
     @ExceptionHandler(HandlerMethodValidationException.class)
-    public ResponseEntity<?> handlerMethodValidationException(HandlerMethodValidationException ex) {
+    public ResponseEntity<List<InvalidFieldsDTO>> handlerMethodValidationException(HandlerMethodValidationException ex) {
         List<InvalidFieldsDTO> invalidFields = new LinkedList<>();
 
         for (ParameterValidationResult error : ex.getAllValidationResults()) {

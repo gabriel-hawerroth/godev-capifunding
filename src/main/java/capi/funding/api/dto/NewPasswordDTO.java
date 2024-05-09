@@ -8,11 +8,11 @@ import jakarta.validation.constraints.Size;
 public record NewPasswordDTO(
         @NotNull
         @NotBlank
-        @Size(min = 8, message = "The password must be at least 8 characters long")
-        @Pattern(regexp = ".*[a-z].*", message = "The password must contain at least 1 lowercase letter")
-        @Pattern(regexp = ".*[A-Z].*", message = "The password must contain at least 1 uppercase letter")
-        @Pattern(regexp = ".*\\d.*", message = "The password must contain at least 1 number")
-        @Pattern(regexp = ".*[!@#$%^&*()_+{}\\[\\]:;,.<>/?~\\\\].*", message = "The password must contain at least 1 special character")
+        @Size(min = 8, message = "a senha deve conter pelo menos 8 caracteres")
+        @Pattern(regexp = ".*[a-z].*", message = "a senha deve conter pelo menos 1 letra minúscula")
+        @Pattern(regexp = ".*[A-Z].*", message = "a senha deve conter pelo menos 1 letra maiúscula")
+        @Pattern(regexp = ".*\\d.*", message = "a senha deve conter pelo menos 1 número")
+        @Pattern(regexp = ".*[!@#$%^&*()_+{}\\[\\]:;,.<>/?~\\\\].*", message = "a senha deve conter pelo menos 1 caracter especial")
         String newPassword
 ) {
 }

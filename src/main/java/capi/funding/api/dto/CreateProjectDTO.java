@@ -20,8 +20,8 @@ public record CreateProjectDTO(
         long category_id,
 
         @NotNull
-        @Min(value = 1, message = "The status ID must be valid")
-        @Max(value = 7, message = "The status ID must be valid")
+        @Min(value = 1, message = "o id do status precisa ser válido")
+        @Max(value = 7, message = "o id do status precisa ser válido")
         long status_id,
 
         Boolean need_to_follow_order,

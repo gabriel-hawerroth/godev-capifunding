@@ -3,11 +3,13 @@ package capi.funding.api.utils;
 import capi.funding.api.dto.ProjectsListFiltersDTO;
 import capi.funding.api.entity.Project;
 import capi.funding.api.entity.ProjectMilestone;
+import capi.funding.api.entity.User;
 import capi.funding.api.enums.ProjectStatusEnum;
 import capi.funding.api.infra.exceptions.InvalidParametersException;
 import capi.funding.api.infra.exceptions.MilestoneSequenceException;
 import capi.funding.api.infra.exceptions.ProjectEditabilityException;
 import capi.funding.api.services.ProjectMilestoneService;
+import capi.funding.api.services.ProjectSearchLogService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -39,11 +42,17 @@ class ProjectUtilsTest {
 
     private ProjectMilestone milestone;
     private ProjectsListFiltersDTO filtersDTO;
+    private ProjectsListFiltersDTO invalidFiltersDTO;
+    private User user;
 
     @InjectMocks
     private ProjectUtils projectUtils;
     @Mock
+    private Utils utils;
+    @Mock
     private ProjectMilestoneService milestoneService;
+    @Mock
+    private ProjectSearchLogService searchLogService;
 
     @BeforeEach
     void setUp() {
@@ -58,12 +67,31 @@ class ProjectUtilsTest {
         );
 
         filtersDTO = new ProjectsListFiltersDTO(
-                "",
-                Collections.emptyList(),
-                Collections.emptyList(),
-                "",
+                "My project",
+                List.of(1, 2),
+                List.of(1, 3, 5),
+                "John Doe",
                 1L,
                 10L
+        );
+
+        invalidFiltersDTO = new ProjectsListFiltersDTO(
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        user = new User(
+                1L,
+                "test@gmail.com",
+                "Testing#01",
+                "test",
+                true,
+                LocalDateTime.now().minusDays(40),
+                null
         );
     }
 
@@ -209,64 +237,76 @@ class ProjectUtilsTest {
     @Test
     @DisplayName("buildFilters - shouldn't return any null value")
     void testBuildFiltersShouldntReturnAnyNullValue() {
-        final ProjectsListFiltersDTO filters = new ProjectsListFiltersDTO(
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-        projectUtils.buildFilters(filters);
+        projectUtils.buildFilters(invalidFiltersDTO);
 
         assertAll("non null values",
-                () -> assertNotNull(filters.getProjectTitle()),
-                () -> assertNotNull(filters.getProjectCategory()),
-                () -> assertNotNull(filters.getProjectStatus()),
-                () -> assertNotNull(filters.getCreatorName()),
-                () -> assertNotNull(filters.getPageNumber()),
-                () -> assertNotNull(filters.getLimit())
+                () -> assertNotNull(invalidFiltersDTO.getProjectTitle()),
+                () -> assertNotNull(invalidFiltersDTO.getProjectCategory()),
+                () -> assertNotNull(invalidFiltersDTO.getProjectStatus()),
+                () -> assertNotNull(invalidFiltersDTO.getCreatorName()),
+                () -> assertNotNull(invalidFiltersDTO.getPageNumber()),
+                () -> assertNotNull(invalidFiltersDTO.getLimit())
         );
     }
 
     @Test
     @DisplayName("buildFilters - shouldnt have any blank value")
-    public void testBuildFiltersBlankValues() {
-        ProjectsListFiltersDTO filters = new ProjectsListFiltersDTO(
-                "   ",
-                null,
-                null,
-                "   ",
-                null,
-                null
-        );
-        filters.setProjectTitle("   ");
-        filters.setCreatorName("   ");
+    void testBuildFiltersBlankValues() {
+        invalidFiltersDTO.setProjectTitle("  ");
+        invalidFiltersDTO.setCreatorName("   ");
 
-        projectUtils.buildFilters(filters);
+        projectUtils.buildFilters(invalidFiltersDTO);
 
-        assertEquals("", filters.getProjectTitle());
-        assertEquals("", filters.getCreatorName());
+        assertEquals("", invalidFiltersDTO.getProjectTitle());
+        assertEquals("", invalidFiltersDTO.getCreatorName());
     }
 
     @Test
-    public void testBuildFiltersValidValues() {
-        ProjectsListFiltersDTO filters = new ProjectsListFiltersDTO(
-                "My Project",
-                List.of(1, 2),
-                List.of(1, 3),
-                "John Doe",
-                2L,
-                10L
-        );
+    @DisplayName("buildFilters - should build the filters with valid values")
+    void testBuildFiltersValidValues() {
+        projectUtils.buildFilters(filtersDTO);
 
-        projectUtils.buildFilters(filters);
+        assertEquals("%my project%", filtersDTO.getProjectTitle());
+        assertEquals("%john doe%", filtersDTO.getCreatorName());
+        assertEquals(List.of(1, 2), filtersDTO.getProjectCategory());
+        assertEquals(List.of(1, 3, 5), filtersDTO.getProjectStatus());
+        assertEquals(0, filtersDTO.getPageNumber());
+        assertEquals(10L, filtersDTO.getLimit());
+    }
 
-        assertEquals("%my project%", filters.getProjectTitle());
-        assertEquals("%john doe%", filters.getCreatorName());
-        assertEquals(List.of(1, 2), filters.getProjectCategory());
-        assertEquals(List.of(1, 3), filters.getProjectStatus());
-        assertEquals(10, filters.getPageNumber());
-        assertEquals(10L, filters.getLimit());
+    @Test
+    @DisplayName("logProjectSearch - should save when passing valid filters")
+    void testLogProjectSearchShouldSaveWhenPassingValidFilters() {
+        when(utils.getAuthUser()).thenReturn(user);
+
+        projectUtils.logProjectSearch(filtersDTO);
+
+        verify(searchLogService).saveAll(anyList());
+    }
+
+    @Test
+    @DisplayName("logProjectSearch - shouldn't save when no filter is passed")
+    void testLogProjectSearchShouldntSaveWhenNoFilterIsPassed() {
+        when(utils.getAuthUser()).thenReturn(user);
+
+        projectUtils.logProjectSearch(invalidFiltersDTO);
+
+        verifyNoInteractions(searchLogService);
+
+        invalidFiltersDTO.setProjectTitle(" ");
+        invalidFiltersDTO.setProjectCategory(Collections.emptyList());
+        invalidFiltersDTO.setProjectStatus(Collections.emptyList());
+        invalidFiltersDTO.setCreatorName(" ");
+
+        projectUtils.logProjectSearch(invalidFiltersDTO);
+
+        verifyNoInteractions(searchLogService);
+
+        invalidFiltersDTO.setProjectTitle("sd");
+        invalidFiltersDTO.setCreatorName("sa");
+
+        projectUtils.logProjectSearch(invalidFiltersDTO);
+
+        verifyNoInteractions(searchLogService);
     }
 }
